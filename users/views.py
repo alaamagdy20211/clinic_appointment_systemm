@@ -2,16 +2,15 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from .models import User, DoctorProfile, PatientProfile, ReceptionistProfile
-from .forms import UserRegistrationForm, DoctorProfileForm, PatientProfileForm, ReceptionistProfileForm
+from .forms import PatientRegistrationForm
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth.views import LoginView, LogoutView
-from .forms import UserRegistrationForm
 from .models import User
 
 class UserRegisterView(CreateView):
     model = User
-    form_class = UserRegistrationForm
+    form_class = PatientRegistrationForm
     template_name = 'users/register.html'
     success_url = reverse_lazy('login')
 
