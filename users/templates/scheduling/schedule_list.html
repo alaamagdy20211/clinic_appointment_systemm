@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Schedule</title>
+</head>
+<body>
+    <h1>My Schedule</h1>
+
+    {% if object_list %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Slot Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for schedule in object_list %}
+                <tr>
+                    <td>{{ schedule.get_day_of_week_display }}</td>
+                    <td>{{ schedule.start_time }}</td>
+                    <td>{{ schedule.end_time }}</td>
+                    <td>{{ schedule.get_slot_duration_display }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No schedule found.</p>
+    {% endif %}
+
+</body>
+</html>
