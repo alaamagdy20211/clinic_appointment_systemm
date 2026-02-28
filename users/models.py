@@ -39,6 +39,3 @@ class ReceptionistProfile(models.Model):
 
     def __str__(self):
         return self.user.username
-
-    def __str__(self):
-        return self.user.username
