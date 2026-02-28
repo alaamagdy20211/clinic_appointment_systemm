@@ -34,7 +34,8 @@ class AppointmentSlot(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('doctor', 'date', 'start_time')
+        unique_together = ('doctor', 'date', 'start_time') #  to ensure the uniqueness of each slot 
+        
 
     def __str__(self):
         return f"{self.doctor.user.username} - {self.date} {self.start_time}"
