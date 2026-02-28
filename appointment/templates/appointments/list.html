@@ -1,0 +1,67 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointments List</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px auto;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #eee;
+        }
+        .action-btn {
+            padding: 4px 8px;
+            text-decoration: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+        }
+        .action-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Appointments List</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Slot</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment.id }}</td>
+                <td>{{ appointment.patient.username }}</td>
+                <td>{{ appointment.doctor.username }}</td>
+                <td>{{ appointment.slot.day_of_week }} {{ appointment.slot.start_time }}</td>
+                <td>{{ appointment.status }}</td>
+                <td>
+                    <a href="{% url 'update_appointment_status' appointment.id %}" class="action-btn">Update Status</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No appointments found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+

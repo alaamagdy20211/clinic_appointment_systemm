@@ -10,11 +10,11 @@ class Appointment(models.Model):
     patient = models.ForeignKey(settings.AUTH_USER_MODEL , 
                                 on_delete= models.CASCADE ,
                                 related_name="patient_appointments",
-                                limit_choices_to={'role': 'Patient'})
-    doctor = models.ForeignKey(settings.AUTH_USER_MODEL , 
+                                limit_choices_to={'role': 'PATIENT'})
+    doctor = models.ForeignKey(settings.AUTH_USER_MODEL ,
                                 on_delete= models.CASCADE ,
                                 related_name="doctor_appointments",
-                                limit_choices_to={'role': 'Doctor'})
+                                limit_choices_to={'role': 'DOCTOR'})
     
     slot = models.ForeignKey( DoctorSchedule ,
                                 on_delete= models.CASCADE ,
@@ -58,6 +58,7 @@ class Appointment(models.Model):
             raise ValidationError("Only requested appointments can be confirmed.")
         if user.role not in ['Doctor', 'Receptionist']:
             raise ValidationError("Only Doctor or Receptionist can confirm appointments.")
+
 
         self.status = self.Status.CONFIRMED
         self.save()
