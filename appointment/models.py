@@ -4,6 +4,7 @@ from scheduling.models import AppointmentSlot,DoctorSchedule
 from datetime import timedelta, datetime, time
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.db.models import Q
 
 BUFFER_MINUTES = 5  
 
@@ -27,21 +28,28 @@ class Appointment(models.Model):
         related_name="slot_appointments"
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    check_in_time = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']
         constraints = [
             models.UniqueConstraint(
-                fields=['doctor', 'slot'], 
+                fields=['doctor', 'slot'],
+                condition=Q(status__in=['REQUESTED', 'CONFIRMED', 'CHECKED_IN','COMPLETED']),
                 name='unique_doctor_slot'
             ),
         ]
 
     def __str__(self):
-        return f"Appointment: {self.patient.username} with Dr. {self.doctor.username} on {self.slot.date} at {self.slot.start_time.strftime('%I:%M %p')}"
+        return f"Appointment: {self.patient.username} with Dr. {self.doctor.username} on {self.slot.date} at {self.slot.start_time.strftime('%I:%M %p')  }-{self.status}"
 
     def clean(self):
+        active_statuses = [
+            self.Status.REQUESTED,
+            self.Status.CONFIRMED,
+            self.Status.CHECKED_IN,
+            self.Status.COMPLETED
+        ]
 
         buffer_td = timedelta(minutes=BUFFER_MINUTES)
         slot_start = datetime.combine(self.slot.date, self.slot.start_time) - buffer_td
@@ -51,7 +59,8 @@ class Appointment(models.Model):
             patient=self.patient_id,
             slot__date=self.slot.date,
             slot__start_time__lt=slot_end.time(),
-            slot__end_time__gt=slot_start.time()
+            slot__end_time__gt=slot_start.time(),
+            status__in=active_statuses
         ).exclude(pk=self.pk)
         if overlapping.exists():
             raise IntegrityError("This patient has an overlapping appointment.")
@@ -59,7 +68,7 @@ class Appointment(models.Model):
         if self.slot.is_booked:
             raise IntegrityError("This slot is already booked.")
         
-        check_in_time = models.DateTimeField(null=True, blank=True)
+
 
     class Status(models.TextChoices):
         REQUESTED = "REQUESTED", "Requested"
@@ -75,8 +84,8 @@ class Appointment(models.Model):
         default=Status.REQUESTED
     )
 
-    def __str__(self):
-        return f"Appointment {self.id} - {self.status}"
+    # def __str__(self):
+    #     return f"Appointment {self.id} - {self.status}"
 
 
   
@@ -104,6 +113,9 @@ class Appointment(models.Model):
 
         self.status = self.Status.CANCELLED
         self.save()
+        self.slot.is_booked = False
+        self.slot.save()
+
 
     @transaction.atomic
     def check_in(self,user):
@@ -127,6 +139,8 @@ class Appointment(models.Model):
 
         self.status = self.Status.NO_SHOW
         self.save()
+        self.slot.is_booked = False
+        self.slot.save()
 
 
     def complete(self,user):

@@ -10,4 +10,3 @@ urlpatterns = [
     path('success/', views.appointment_success, name='appointment_success'),
 ]
 
-]

@@ -1,7 +1,8 @@
 from django import forms
 from .models import Appointment
 from users.models import User
-from scheduling.models import App
+from scheduling.models import AppointmentSlot
+from datetime import timedelta, datetime
 
 class UpdateStatusForm(forms.Form):
     status = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
@@ -29,6 +30,14 @@ class UpdateStatusForm(forms.Form):
                 ('CHECKED_IN', 'Checked In'),
                 ('NO_SHOW', 'No Show'),
             ]
+        elif user.role == "ADMIN":
+            self.fields['status'].choices = [
+                ('CONFIRMED', 'Confirmed'),
+                ('CHECKED_IN', 'Checked In'),
+                ('NO_SHOW', 'No Show'),
+                ('CANCELLED', 'Cancelled'),
+                ('COMPLETED', 'Completed'),
+            ]
 
 
     def clean(self):
@@ -39,7 +48,7 @@ class UpdateStatusForm(forms.Form):
         if status in ['CANCELLED', 'NO_SHOW','COMPLETED'] and not reason:
             raise forms.ValidationError("you must provide a reason")
 
-        return cleaned_datafrom django import forms
+        return cleaned_data
 
 
 class DoctorSelectionForm(forms.ModelForm):
