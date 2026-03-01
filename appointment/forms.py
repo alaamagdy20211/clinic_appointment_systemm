@@ -1,16 +1,34 @@
 from django import forms
 from .models import Appointment
 
-class UpdateStatusForm(forms.Form):
-    status = forms.ChoiceField(choices=[
-        ('CONFIRMED', 'Confirmed'),
-        ('CHECKED_IN', 'Checked In'),
-        ('COMPLETED', 'Completed'),
-        ('NO_SHOW', 'No Show'),
-        ('CANCELLED', 'Cancelled'),
-    ],widget=forms.Select(attrs={'class': 'form-control'}))
+from django import forms
 
+class UpdateStatusForm(forms.Form):
+    status = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
     reason = forms.CharField(widget=forms.Textarea, required=False)
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')  # get the logged-in user
+        super().__init__(*args, **kwargs)
+
+        # Define role-based choices
+        if user.role == "PATIENT":
+            self.fields['status'].choices = [
+                ('CANCELLED', 'Cancelled'),
+            ]
+        elif user.role == "DOCTOR":
+            self.fields['status'].choices = [
+                ('CONFIRMED', 'Confirmed'),
+                ('CHECKED_IN', 'Checked In'),
+                ('NO_SHOW', 'No Show'),
+                ('COMPLETED', 'Completed'),
+            ]
+        elif user.role == "RECEPTIONIST":
+            self.fields['status'].choices = [
+                ('CONFIRMED', 'Confirmed'),
+                ('CHECKED_IN', 'Checked In'),
+                ('NO_SHOW', 'No Show'),
+            ]
 
 
     def clean(self):

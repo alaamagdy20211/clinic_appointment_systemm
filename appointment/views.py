@@ -1,9 +1,11 @@
+from django.db import models,transaction
 from django.views.generic import ListView,View
 from .models import Appointment
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render,get_object_or_404,redirect
 from django.core.exceptions import ValidationError
+from .forms import UpdateStatusForm
 
 
 class AppointmentListView(LoginRequiredMixin, ListView):
@@ -13,6 +15,7 @@ class AppointmentListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
+        print("Logged-in user:", user, user.role, user.username)  # <<-- add this
 
         if user.role == "PATIENT":
             return Appointment.objects.filter(patient=user)
@@ -26,12 +29,12 @@ class  UpdateAppointmentStatusView(View):
     template_name = "appointments/update_status.html"
     def get(self,request,pk):
         appointment=get_object_or_404(Appointment,pk=pk)
-        form = UpdateStatusForm(initial={'status': appointment.status})
+        form = UpdateStatusForm(initial={'status': appointment.status}, user=request.user)
         return render(request, self.template_name, {'form': form, 'appointment': appointment})
 
     def post(self,request,pk):
         appointment = get_object_or_404(Appointment, pk=pk)
-        form = UpdateStatusForm(request.POST,user=request.user,appointment=appointment)
+        form = UpdateStatusForm(request.POST,user=request.user)
         if form.is_valid():
             new_status = form.cleaned_data['status']
             reason = form.cleaned_data.get('reason', '')
@@ -56,7 +59,7 @@ class  UpdateAppointmentStatusView(View):
                 return redirect("appointment_list")
 
             except ValidationError as e:
-                messages.error(request, str(e))
+                form.add_error(None, e.message)
 
 
-            return render(request, self.template_name, {'form': form, 'appointment': appointment})
+        return render(request, self.template_name, {'form': form, 'appointment': appointment})

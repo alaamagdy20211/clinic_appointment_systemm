@@ -44,6 +44,9 @@
             </tr>
         </thead>
         <tbody>
+
+           <p>User: {{ request.user.username }} (role: {{ request.user.role }})</p>
+           <p>Appointments: {{ appointments }}</p>
             {% for appointment in appointments %}
             <tr>
                 <td>{{ appointment.id }}</td>
@@ -52,7 +55,7 @@
                 <td>{{ appointment.slot.day_of_week }} {{ appointment.slot.start_time }}</td>
                 <td>{{ appointment.status }}</td>
                 <td>
-                    <a href="{% url 'update_appointment_status' appointment.id %}" class="action-btn">Update Status</a>
+                    <a href="{% url 'appointment_updatestatus' appointment.id %}" class="action-btn">Update Status</a>
                 </td>
             </tr>
             {% empty %}

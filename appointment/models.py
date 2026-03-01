@@ -1,6 +1,6 @@
 from django.db import models,transaction
 from django.conf import settings
-from scheduling.models import DoctorSchedule
+from scheduling.models import DoctorSchedule,AppointmentSlot
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -17,9 +17,11 @@ class Appointment(models.Model):
                                 related_name="doctor_appointments",
                                 limit_choices_to={'role': 'DOCTOR'})
     
-    slot = models.ForeignKey( DoctorSchedule ,
-                                on_delete= models.CASCADE ,
-                                related_name="slot_appointments")
+    slot = models.OneToOneField(
+        AppointmentSlot,
+        on_delete=models.CASCADE,
+        related_name="appointment"
+    )
     
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -57,7 +59,7 @@ class Appointment(models.Model):
     def confirm (self,user):
         if self.status != self.Status.REQUESTED:
             raise ValidationError("Only requested appointments can be confirmed.")
-        if user.role not in ['Doctor', 'Receptionist']:
+        if user.role not in ['DOCTOR', 'RECEPTIONIST']:
             raise ValidationError("Only Doctor or Receptionist can confirm appointments.")
 
 
@@ -69,7 +71,7 @@ class Appointment(models.Model):
         if self.status not in [self.Status.REQUESTED, self.Status.CONFIRMED]:
             raise ValidationError("Only requested appointments can be cancelled.")
 
-        if user.role  != 'Patient' and user != self.patient:
+        if user.role  != 'PATIENT' and user != self.patient:
             raise ValidationError("Only Patient can cancel his own appointments.")
 
         self.status = self.Status.CANCELLED
@@ -80,7 +82,7 @@ class Appointment(models.Model):
         if self.status != self.Status.CONFIRMED:
             raise ValidationError("Only confirmed appointments can be checked in.")
 
-        if user.role not in ['Doctor', 'Receptionist']:
+        if user.role not in ['DOCTOR', 'RECEPTIONIST']:
             raise ValidationError("Only Doctor or Receptionist can check_in appointments.")
 
         self.status = self.Status.CHECKED_IN
@@ -92,7 +94,7 @@ class Appointment(models.Model):
         if self.status != self.Status.CONFIRMED:
             raise ValidationError("Only confirmed appointments can be marked no show.")
 
-        if user.role not in ['Doctor', 'Receptionist']:
+        if user.role not in  ['DOCTOR', 'RECEPTIONIST']:
             raise ValidationError("Only Doctor or Receptionist can mark no-show appointments.")
 
         self.status = self.Status.NO_SHOW
@@ -102,7 +104,7 @@ class Appointment(models.Model):
     def complete(self,user):
         if self.status != self.Status.CHECKED_IN:
             raise ValidationError("Only checked in-appointments can be completed.")
-        if user.role !='Doctor':
+        if user.role !='DOCTOR':
             raise ValidationError("Only Doctor can complete appointments.")
 
         # check in heba part about consultation record lma t3mlo fi model bt3aha howa mawgod wla laa
