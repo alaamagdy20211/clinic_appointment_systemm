@@ -1,0 +1,17 @@
+[33m7cca683[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m appointment app with prevention of overlapping and double booking
+[33mbf8ff59[m new updates in appointment app
+[33m7e5fcaf[m Added user permissions
+[33maa1a8a6[m add auto slot generation and deletion
+[33mf7e0034[m add create schedule view
+[33mdb5b354[m fix the typo mismatch
+[33m62cc72a[m Merge branch 'main' of https://github.com/AhmedBakry024/clinic_appointment_system
+[33md26cbeb[m make schedule list view with simple html
+[33m529e4b8[m Add appointment app
+[33m8bdf28d[m update settings A update settings
+[33m9bbb329[m small edit
+[33m425967a[m stablishing the scheduling mechanism
+[33m4ea1d22[m Doctor Signup Disabled
+[33m5202bce[m User Views & Forms Created
+[33m1faf622[m User Model
+[33m2f888c7[m Project Structure and DB connection
+[33m6f24406[m Initial commit
