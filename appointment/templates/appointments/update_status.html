@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Appointment Status</title>
+    <style>
+        form {
+            width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 6px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        select, textarea, input[type="submit"] {
+            width: 100%;
+            padding: 6px;
+            margin-top: 5px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Update Appointment Status</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label for="status">Status:</label>
+        {{ form.status }}
+
+        <label for="reason">Reason (required for Cancelled, No Show, Completed):</label>
+        {{ form.reason }}
+
+        {% if form.non_field_errors %}
+            <div class="error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <input type="submit" value="Update Status">
+    </form>
+
+    <div style="text-align:center; margin-top:20px;">
+        <a href="{% url 'appointment_list' %}">Back to Appointments List</a>
+    </div>
+</body>
+</html>
