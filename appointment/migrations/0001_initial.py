@@ -20,12 +20,15 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('check_in_time', models.DateTimeField(blank=True, null=True)),
+                ('status', models.CharField(choices=[('REQUESTED', 'Requested'), ('CONFIRMED', 'Confirmed'), ('CHECKED_IN', 'Checked In'), ('COMPLETED', 'Completed'), ('CANCELLED', 'Cancelled'), ('NO_SHOW', 'No Show')], default='REQUESTED', max_length=20)),
                 ('doctor', models.ForeignKey(limit_choices_to={'role': 'Doctor'}, on_delete=django.db.models.deletion.CASCADE, related_name='doctor_appointments', to=settings.AUTH_USER_MODEL)),
                 ('patient', models.ForeignKey(limit_choices_to={'role': 'Patient'}, on_delete=django.db.models.deletion.CASCADE, related_name='patient_appointments', to=settings.AUTH_USER_MODEL)),
                 ('slot', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='slot_appointments', to='scheduling.doctorschedule')),
             ],
             options={
                 'ordering': ['-created_at'],
+                'constraints': [models.UniqueConstraint(fields=('slot',), name='unique_slot_booking')],
             },
         ),
     ]

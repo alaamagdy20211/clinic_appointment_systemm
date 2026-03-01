@@ -23,3 +23,4 @@ urlpatterns = [
     path('appointment/', include('appointment.urls')),
     path('scheduling/', include('scheduling.urls')),
 ]
+

@@ -2,7 +2,49 @@ from django import forms
 from .models import Appointment
 from users.models import User
 from scheduling.models import AppointmentSlot
-from datetime import datetime
+from datetime import timedelta, datetime
+
+class UpdateStatusForm(forms.Form):
+    status = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
+    # reason = forms.CharField(widget=forms.Textarea, required=False)
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')  # get the logged-in user
+        super().__init__(*args, **kwargs)
+
+        # Define role-based choices
+        if user.role == "PATIENT":
+            self.fields['status'].choices = [
+                ('CANCELLED', 'Cancelled'),
+            ]
+        elif user.role == "DOCTOR":
+            self.fields['status'].choices = [
+                ('CONFIRMED', 'Confirmed'),
+                ('CHECKED_IN', 'Checked In'),
+                ('NO_SHOW', 'No Show'),
+                ('COMPLETED', 'Completed'),
+            ]
+        elif user.role == "RECEPTIONIST":
+            self.fields['status'].choices = [
+                ('CONFIRMED', 'Confirmed'),
+                ('CHECKED_IN', 'Checked In'),
+                ('NO_SHOW', 'No Show'),
+            ]
+        elif user.role == "ADMIN":
+            self.fields['status'].choices = [
+                ('CONFIRMED', 'Confirmed'),
+                ('CHECKED_IN', 'Checked In'),
+                ('NO_SHOW', 'No Show'),
+                ('CANCELLED', 'Cancelled'),
+                ('COMPLETED', 'Completed'),
+            ]
+
+
+    def clean(self):
+        cleaned_data=super().clean()
+        status=cleaned_data.get("status")
+        return cleaned_data
+
 
 class DoctorSelectionForm(forms.ModelForm):
     doctor = forms.ModelChoiceField(
