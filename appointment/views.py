@@ -70,12 +70,12 @@ class AppointmentListView(LoginRequiredMixin, ListView):
         print("Logged-in user:", user, user.role, user.username)  # <<-- add this
 
         if user.role == "PATIENT":
-            return Appointment.objects.filter(patient=user)
+            return Appointment.objects.filter(patient=user).select_related('doctor', 'slot').order_by('-slot__date')
 
         if user.role == "DOCTOR":
-            return Appointment.objects.filter(doctor=user)
+            return Appointment.objects.filter(doctor=user).select_related('patient', 'slot').order_by('-slot__date')
 
-        return Appointment.objects.all()
+        return Appointment.objects.all().select_related('patient', 'doctor', 'slot').order_by('-slot__date')
 
 class  UpdateAppointmentStatusView(View):
     template_name = "appointments/update_status.html"
@@ -89,7 +89,6 @@ class  UpdateAppointmentStatusView(View):
         form = UpdateStatusForm(request.POST,user=request.user)
         if form.is_valid():
             new_status = form.cleaned_data['status']
-            reason = form.cleaned_data.get('reason', '')
             try:
 
                with transaction.atomic():

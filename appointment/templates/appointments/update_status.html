@@ -4,59 +4,86 @@
     <meta charset="UTF-8">
     <title>Update Appointment Status</title>
     <style>
-        form {
-            width: 400px;
-            margin: 50px auto;
-            padding: 20px;
+        table {
+            border-collapse: collapse;
+            width: 60%;
+            margin: 20px auto;
+        }
+        th, td {
             border: 1px solid #333;
-            border-radius: 6px;
+            padding: 8px;
+            text-align: left;
         }
-        label {
-            display: block;
-            margin-top: 10px;
+        th {
+            background-color: #eee;
         }
-        select, textarea, input[type="submit"] {
+        .form-container {
+            width: 60%;
+            margin: 20px auto;
+        }
+        textarea, select {
             width: 100%;
             padding: 6px;
-            margin-top: 5px;
+            margin-top: 4px;
         }
-        input[type="submit"] {
+        .submit-btn {
+            margin-top: 10px;
+            padding: 8px 12px;
             background-color: #4CAF50;
             color: white;
             border: none;
-            cursor: pointer;
+            border-radius: 4px;
         }
-        input[type="submit"]:hover {
+        .submit-btn:hover {
             background-color: #45a049;
-        }
-        .error {
-            color: red;
         }
     </style>
 </head>
 <body>
-    <h2 style="text-align:center;">Update Appointment Status</h2>
+    <h2 style="text-align:center;">Appointment Details</h2>
+    <!-- Back button -->
 
-    <form method="post">
-        {% csrf_token %}
 
-        <label for="status">Status:</label>
-        {{ form.status }}
+    <table>
+        <tr>
+            <th>Patient</th>
+            <td>{{ appointment.patient.username }}</td>
+        </tr>
+        <tr>
+            <th>Doctor</th>
+            <td>{{ appointment.doctor.username }}</td>
+        </tr>
+        <tr>
+            <th>Specialization</th>
+            <td>{{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <th>Slot</th>
+            <td>{{ appointment.slot.date|date:"M d, Y" }} {{ appointment.slot.start_time|time:"H:i" }} - {{ appointment.slot.end_time|time:"H:i" }}</td>
+        </tr>
+        <tr>
+            <th>Created At</th>
+            <td>{{ appointment.created_at|date:"M d, Y H:i" }}</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>{{ appointment.status }}</td>
+        </tr>
+    </table>
 
-        <label for="reason">Reason (required for Cancelled, No Show, Completed):</label>
-        {{ form.reason }}
-
-        {% if form.non_field_errors %}
-            <div class="error">
-                {{ form.non_field_errors }}
-            </div>
-        {% endif %}
-
-        <input type="submit" value="Update Status">
-    </form>
-
-    <div style="text-align:center; margin-top:20px;">
-        <a href="{% url 'appointment_list' %}">Back to Appointments List</a>
+    <div class="form-container">
+        <h3>Update Status</h3>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="submit-btn">Update</button>
+        </form>
+    </div>
+<div style="text-align:center; margin-bottom: 20px;">
+        <a href="{% url 'appointment_list' %}"
+           style="text-decoration:none; padding:6px 12px; background-color:#2196F3; color:white; border-radius:4px;">
+           &larr; Back to Appointment List
+        </a>
     </div>
 </body>
 </html>

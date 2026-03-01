@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <style>
         table {
             border-collapse: collapse;
-            width: 80%;
+            width: 90%;
             margin: 20px auto;
         }
         th, td {
@@ -32,27 +32,58 @@
 <body>
     <h2 style="text-align:center;">Appointments List</h2>
 
+    <div style="text-align:center; margin-bottom:20px;">
+    {% if request.user.role == "PATIENT" %}
+        <strong>Patient:</strong> {{ request.user.username }}
+    {% elif request.user.role == "DOCTOR" %}
+        <strong>Doctor:</strong> {{ request.user.username }} /
+        <strong>Specialization:</strong> {{ request.user.doctor_profile.specialization|default:"N/A" }}
+    {% else %}
+        <strong>User:</strong> {{ request.user.username }} /
+        <strong>Role:</strong> {{ request.user.role }}
+    {% endif %}
+</div>
+
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Patient</th>
-                <th>Doctor</th>
+                {% if request.user.role == "PATIENT" %}
+                    <th>Doctor</th>
+                    <th>Specialization</th>
+                {% elif request.user.role == "DOCTOR" %}
+                    <th>Patient</th>
+                {% else %}
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Specialization</th>
+                {% endif %}
                 <th>Slot</th>
                 <th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-
-           <p>User: {{ request.user.username }} (role: {{ request.user.role }})</p>
-           <p>Appointments: {{ appointments }}</p>
             {% for appointment in appointments %}
             <tr>
                 <td>{{ appointment.id }}</td>
-                <td>{{ appointment.patient.username }}</td>
-                <td>{{ appointment.doctor.username }}</td>
-               <td>{{ appointment.slot.date|date:"M d, Y" }} {{ appointment.slot.start_time|time:"H:i" }} - {{ appointment.slot.end_time|time:"H:i" }}</td>
+
+                {% if request.user.role == "PATIENT" %}
+                    <td>{{ appointment.doctor.username }}</td>
+                    <td>{{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}</td>
+                {% elif request.user.role == "DOCTOR" %}
+                    <td>{{ appointment.patient.username }}</td>
+                {% else %}
+                    <td>{{ appointment.patient.username }}</td>
+                    <td>{{ appointment.doctor.username }}</td>
+                    <td>{{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}</td>
+                {% endif %}
+
+               <td>
+    {{ appointment.slot.date|date:"M d, Y" }}
+    {{ appointment.slot.start_time|time:"h:i A" }} -
+    {{ appointment.slot.end_time|time:"h:i A" }}
+</td>
                 <td>{{ appointment.status }}</td>
                 <td>
                     <a href="{% url 'appointment_updatestatus' appointment.id %}" class="action-btn">Update Status</a>
@@ -60,11 +91,10 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6">No appointments found.</td>
+                <td colspan="7">No appointments found.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </body>
 </html>
-

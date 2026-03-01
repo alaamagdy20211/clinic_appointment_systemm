@@ -30,6 +30,7 @@ class Appointment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     check_in_time = models.DateTimeField(null=True, blank=True)
 
+
     class Meta:
         ordering = ['-created_at']
         constraints = [

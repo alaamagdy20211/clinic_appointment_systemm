@@ -6,7 +6,7 @@ from datetime import timedelta, datetime
 
 class UpdateStatusForm(forms.Form):
     status = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
-    reason = forms.CharField(widget=forms.Textarea, required=False)
+    # reason = forms.CharField(widget=forms.Textarea, required=False)
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')  # get the logged-in user
@@ -43,11 +43,6 @@ class UpdateStatusForm(forms.Form):
     def clean(self):
         cleaned_data=super().clean()
         status=cleaned_data.get("status")
-        reason=cleaned_data.get("reason")
-
-        if status in ['CANCELLED', 'NO_SHOW','COMPLETED'] and not reason:
-            raise forms.ValidationError("you must provide a reason")
-
         return cleaned_data
 
 
