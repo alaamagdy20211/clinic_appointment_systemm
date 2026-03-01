@@ -15,7 +15,7 @@ class ScheduleForm(forms.ModelForm):
 class ScheduleExceptionForm(forms.ModelForm):
     class Meta:
         model = ScheduleException
-        fields = ['date', 'reason', 'is_working_day']
+        fields = ['date', 'reason', 'is_working_day', 'start_time', 'end_time', 'slot_duration']
         # widgets = {
         #     'date': forms.DateInput(format='%Y-%m-%d'),
         #     'reason': forms.TextInput(),

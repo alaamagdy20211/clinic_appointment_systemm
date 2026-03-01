@@ -19,6 +19,9 @@ class DoctorSchedule(models.Model):
 class ScheduleException(models.Model):
     doctor = models.ForeignKey('users.DoctorProfile', on_delete=models.CASCADE)
     date = models.DateField()
+    start_time = models.TimeField(null=True, blank=True)    
+    end_time = models.TimeField(null=True, blank=True)
+    slot_duration = models.IntegerField(choices=[(15, '15 min'), (30, '30 min')], default=30)
     reason = models.CharField(max_length=255)
     is_working_day = models.BooleanField(default=False)
 
