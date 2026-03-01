@@ -1,7 +1,7 @@
 from django import forms
 from .models import Appointment
-from scheduling.models import AppointmentSlot
 from users.models import User
+from scheduling.models import AppointmentSlot
 from datetime import datetime
 
 class DoctorSelectionForm(forms.ModelForm):

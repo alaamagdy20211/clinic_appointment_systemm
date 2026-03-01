@@ -1,23 +1,30 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.db import transaction, IntegrityError
 from django.utils.timezone import now
+from django.contrib.auth.decorators import login_required
 from .forms import DoctorSelectionForm
 from .models import Appointment
-from users.models import User
 from scheduling.models import AppointmentSlot
 
+@login_required
 def select_doctor(request):
     form = DoctorSelectionForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
         appointment = form.save(commit=False)
-        appointment.patient = request.user if request.user.is_authenticated else User.objects.get(id=1)
-        appointment.save()
+        appointment.patient = request.user
 
-        appointment.slot.is_booked = True
-        appointment.slot.save()
-
-        return redirect('appointment_success')
+        try:
+            with transaction.atomic():  
+                appointment.clean()
+                appointment.save()
+                appointment.slot.is_booked = True
+                appointment.slot.save()
+        except IntegrityError as e:
+            form.add_error(None, str(e))
+        else:
+            return redirect('appointment_success')
 
     return render(request, 'appointment/select_doctor.html', {'form': form})
 
@@ -39,5 +46,8 @@ def load_slots(request):
 
     return JsonResponse(slots_data, safe=False)
 
+
 def appointment_success(request):
     return render(request, 'appointment/success.html')
+
+
