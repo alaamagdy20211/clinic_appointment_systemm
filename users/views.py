@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 
+
 from users.permissions import AdminRequiredMixin, PatientRequiredMixin, PatientRequiredMixin
 from .models import User, DoctorProfile, PatientProfile, ReceptionistProfile
 from .forms import PatientRegistrationForm, UserUpdateForm, PatientProfileUpdateForm, DoctorRegistrationForm, ReceptionistRegistrationForm
@@ -11,6 +12,9 @@ from django.views.generic import CreateView, ListView, TemplateView, View
 from django.contrib.auth.views import LoginView
 from .models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
+from appointment.models import Appointment
+import csv
+from django.http import HttpResponse
 
 class UserRegisterView(CreateView):
     model = User
@@ -67,6 +71,12 @@ class AdminDashboardHomeView(AdminRequiredMixin, TemplateView):
         context['total_doctors'] = User.objects.filter(role=User.Role.DOCTOR).count()
         context['total_patients'] = User.objects.filter(role=User.Role.PATIENT).count()
         context['total_receptionists'] = User.objects.filter(role=User.Role.RECEPTIONIST).count()
+         # Appointment stats
+        context['total_appointments'] = Appointment.objects.count()
+        ###After adding the status in (appointments) models.py
+        # context['completed_appointments'] = Appointment.objects.filter(status='COMPLETED').count()
+        # context['cancelled_appointments'] = Appointment.objects.filter(status='CANCELLED').count()
+        # context['no_show_appointments'] = Appointment.objects.filter(status='NO_SHOW').count()
 
         return context
     
@@ -122,3 +132,27 @@ class PatientDashboardView(PatientRequiredMixin, TemplateView):
     
     # Later, Janna will add a get_context_data method here to fetch 
     # the patient's upcoming appointments from the database.
+
+
+class ExportAppointmentsCSV(View):
+    def get(self, request, *args, **kwargs):
+        # Check if user is admin using minix (bakry)
+        
+
+        # Create CSV response
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="appointments.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['slot', 'Patient', 'Doctor', 'Created At'])
+
+        # Write data
+        for a in Appointment.objects.all(): # change the data with the data in models.py in appoitments
+            writer.writerow([
+                a.slot,
+                a.patient,
+                a.doctor,
+                a.created_at
+            ])
+
+        return response
