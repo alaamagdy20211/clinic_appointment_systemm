@@ -1,0 +1,40 @@
+{% extends 'users/admin_base.html' %}
+
+{% block admin_content %}
+    <h1 class="text-3xl font-bold mb-6">Dashboard Overview</h1>
+    <div class="grid grid-cols-2 gap-4">
+        <div class="p-6 bg-white rounded shadow text-center">
+            <h2 class="text-xl text-gray-600">Total Doctors</h2>
+            <p class="text-4xl font-bold mt-2">{{ total_doctors }}</p>
+        </div>
+        <div class="p-6 bg-white rounded shadow text-center">
+            <h2 class="text-xl text-gray-600">Total Patients</h2>
+            <p class="text-4xl font-bold mt-2">{{ total_patients }}</p>
+        </div>
+        <div class="p-6 bg-white rounded shadow text-center">
+            <h2 class="text-xl text-gray-600">Total Receptionists</h2>
+            <p class="text-4xl font-bold mt-2">{{ total_receptionists }}</p>
+        </div>
+
+        <div class="p-6 bg-white rounded shadow text-center">
+            <h2 class="text-xl text-gray-600">Total Appointments</h2>
+            <p class="text-4xl font-bold mt-2">{{ total_appointments }}</p>
+        </div>
+        <a href="{% url 'export_appointments_csv' %}">
+            Export Appointments CSV
+        </a>
+
+        <!-- After adding the status in (appointments) models.py -->
+        <!-- <div class="p-6 bg-white rounded shadow text-center">
+            <h2 class="text-xl text-gray-600">Completed Appointments</h2>
+            <p class="text-4xl font-bold mt-2">{{ completed_appointments }}</p>
+        </div>
+        <div class="p-6 bg-white rounded shadow text-center">
+            <h2 class="text-xl text-gray-600">Cancelled Appointments</h2>
+            <p class="text-4xl font-bold mt-2">{{ cancelled_appointments }}</p>
+        </div>
+        <div class="p-6 bg-white rounded shadow text-center">
+            <h2 class="text-xl text-gray-600">Number Of Show Appointments</h2>
+            <p class="text-4xl font-bold mt-2">{{ no_show_appointments }}</p>
+        </div> -->
+{% endblock %}

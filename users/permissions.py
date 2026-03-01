@@ -33,3 +33,6 @@ class StaffRequiredMixin(RoleRequiredMixin):
     """For views that Doctors, Receptionists, and Admins can all access, but Patients cannot."""
     allowed_roles = ['DOCTOR', 'RECEPTIONIST', 'ADMIN']
 
+class PatientOrDoctorRequiredMixin(RoleRequiredMixin):
+    """For views that both Patients and Doctors can access, but Receptionists and Admins cannot."""
+    allowed_roles = ['PATIENT', 'DOCTOR']

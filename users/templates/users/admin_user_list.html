@@ -1,0 +1,36 @@
+{% extends 'users/admin_base.html' %}
+
+{% block admin_content %}
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Manage Users</h1>
+        <div>
+            <a href="{% url 'create_doctor' %}" class="bg-green-600 text-white px-4 py-2 rounded">Add Doctor</a>
+            <a href="{% url 'create_receptionist' %}" class="bg-blue-600 text-white px-4 py-2 rounded">Add Receptionist</a>
+        </div>
+    </div>
+
+    <div class="bg-white shadow rounded overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-200 text-gray-700">
+                    <th class="p-4 border-b">Username</th>
+                    <th class="p-4 border-b">Email</th>
+                    <th class="p-4 border-b">Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="hover:bg-gray-50">
+                    <td class="p-4 border-b">{{ user.username }}</td>
+                    <td class="p-4 border-b">{{ user.email }}</td>
+                    <td class="p-4 border-b">
+                        <span class="px-2 py-1 text-sm rounded bg-gray-200">{{ user.get_role_display }}</span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="p-4 text-center text-gray-500">No users found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
