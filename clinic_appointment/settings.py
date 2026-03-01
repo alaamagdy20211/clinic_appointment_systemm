@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'scheduling',
-    'appointment.apps.AppointementConfig' ,
+ 'appointment.apps.AppointmentConfig' ,
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Appointment</title>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+</head>
+<body>
+    <h1>Book an Appointment</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Book</button>
+    </form>
+
+    <script>
+    $(document).ready(function() {
+        $('#id_doctor').change(function() {
+            const doctorId = $(this).val();
+            const slotSelect = $('#id_slot');
+
+            slotSelect.empty();
+            slotSelect.append('<option value="">Select Slot</option>');
+
+            if (doctorId) {
+                $.ajax({
+                    url: "{% url 'ajax_load_slots' %}",
+                    data: { 'doctor': doctorId },
+                    success: function(data) {
+                        if (data.length === 0) {
+                            slotSelect.append('<option value="">No slots available</option>');
+                        } else {
+                            data.forEach(function(slot) {
+                                slotSelect.append(
+                                    `<option value="${slot.id}">${slot.text}</option>`
+                                );
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
+    </script>
+</body>
+</html>

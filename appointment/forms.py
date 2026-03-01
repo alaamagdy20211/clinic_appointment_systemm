@@ -1,7 +1,7 @@
 from django import forms
 from .models import Appointment
-
-from django import forms
+from users.models import User
+from scheduling.models import App
 
 class UpdateStatusForm(forms.Form):
     status = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
@@ -39,4 +39,32 @@ class UpdateStatusForm(forms.Form):
         if status in ['CANCELLED', 'NO_SHOW','COMPLETED'] and not reason:
             raise forms.ValidationError("you must provide a reason")
 
-        return cleaned_data
+        return cleaned_datafrom django import forms
+
+
+class DoctorSelectionForm(forms.ModelForm):
+    doctor = forms.ModelChoiceField(
+        queryset=User.objects.filter(role='DOCTOR'),
+        empty_label="Select Doctor"
+    )
+    slot = forms.ModelChoiceField(
+        queryset=AppointmentSlot.objects.none(),
+        empty_label="Select Slot"
+    )
+
+    class Meta:
+        model = Appointment
+        fields = ['doctor', 'slot']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'doctor' in self.data:
+            try:
+                doctor_id = int(self.data.get('doctor'))
+                self.fields['slot'].queryset = AppointmentSlot.objects.filter(
+                    doctor_id=doctor_id,
+                    is_booked=False,
+                    date__gte=datetime.now().date()
+                ).order_by('date', 'start_time')
+            except (ValueError, TypeError):
+                self.fields['slot'].queryset = AppointmentSlot.objects.none()
