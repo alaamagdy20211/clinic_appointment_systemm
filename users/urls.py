@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import AdminUserListView, PatientProfileView, UserRegisterView, UserLoginView, UserLogoutView, AdminDashboardHomeView, CreateDoctorView, CreateReceptionistView
+from .views import AdminUserListView, PatientProfileView, UserRegisterView, UserLoginView, UserLogoutView, AdminDashboardHomeView, CreateDoctorView, CreateReceptionistView, ExportAppointmentsCSV
 
 urlpatterns = [
     path('register/', UserRegisterView.as_view(), name='register'),
@@ -10,4 +10,5 @@ urlpatterns = [
     path('admin-dashboard/users/', AdminUserListView.as_view(), name='admin_user_list'),
     path('admin-dashboard/users/create-doctor/', CreateDoctorView.as_view(), name='create_doctor'),
     path('admin-dashboard/users/create-receptionist/', CreateReceptionistView.as_view(), name='create_receptionist'),
+    path('admin/export-csv/', ExportAppointmentsCSV.as_view(), name='export_appointments_csv'),
 ]

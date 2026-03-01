@@ -13,6 +13,8 @@ from django.contrib.auth.views import LoginView
 from .models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from appointment.models import Appointment
+import csv
+from django.http import HttpResponse
 
 class UserRegisterView(CreateView):
     model = User
@@ -130,3 +132,27 @@ class PatientDashboardView(PatientRequiredMixin, TemplateView):
     
     # Later, Janna will add a get_context_data method here to fetch 
     # the patient's upcoming appointments from the database.
+
+
+class ExportAppointmentsCSV(View):
+    def get(self, request, *args, **kwargs):
+        # Check if user is admin using minix (bakry)
+        
+
+        # Create CSV response
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="appointments.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['slot', 'Patient', 'Doctor', 'Created At'])
+
+        # Write data
+        for a in Appointment.objects.all(): # change the data with the data in models.py in appoitments
+            writer.writerow([
+                a.slot,
+                a.patient,
+                a.doctor,
+                a.created_at
+            ])
+
+        return response
