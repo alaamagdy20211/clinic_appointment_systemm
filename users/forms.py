@@ -9,7 +9,7 @@ class PatientRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['first_name', 'last_name', 'username', 'email', 'password']
     @transaction.atomic
     def save(self, commit=True):
 
@@ -24,3 +24,13 @@ class PatientRegistrationForm(forms.ModelForm):
             patient_profile.save()
             
         return user
+    
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'password']
+
+class PatientProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = PatientProfile
+        fields = ['phone_number']

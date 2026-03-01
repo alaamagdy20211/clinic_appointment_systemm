@@ -13,9 +13,9 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.PATIENT)
 
     def save(self, *args, **kwargs):
-        if self.password and not self.password.startswith('pbkdf2_'):
-            self.set_password(self.password)
-        return super().save(*args, **kwargs)
+        if not self.pk and self.is_superuser:
+            self.role = self.Role.ADMIN
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.username
