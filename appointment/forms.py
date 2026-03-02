@@ -2,7 +2,9 @@ from django import forms
 from .models import Appointment
 from users.models import User
 from scheduling.models import AppointmentSlot
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime , timezone
+from django import forms
+from .models import Appointment, AppointmentSlot
 
 class UpdateStatusForm(forms.Form):
     status = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
@@ -68,7 +70,25 @@ class DoctorSelectionForm(forms.ModelForm):
                 self.fields['slot'].queryset = AppointmentSlot.objects.filter(
                     doctor_id=doctor_id,
                     is_booked=False,
-                    date__gte=datetime.now().date()
+                    # date__gte=timezone.now().date()
                 ).order_by('date', 'start_time')
             except (ValueError, TypeError):
                 self.fields['slot'].queryset = AppointmentSlot.objects.none()
+
+
+
+
+class RescheduleAppointmentForm(forms.Form):
+    new_slot = forms.ModelChoiceField(queryset=AppointmentSlot.objects.none())
+    reason = forms.CharField(widget=forms.Textarea, max_length=500)
+
+    def __init__(self, *args, **kwargs):
+        appointment = kwargs.pop('appointment', None)
+        super().__init__(*args, **kwargs)
+        if appointment:
+
+            self.fields['new_slot'].queryset = AppointmentSlot.objects.filter(
+                doctor=appointment.doctor,
+                is_booked=False,
+                # date__gte=timezone.now().date()
+            ).order_by('date', 'start_time')

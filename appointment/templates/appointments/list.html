@@ -87,6 +87,9 @@
                 <td>{{ appointment.status }}</td>
                 <td>
                     <a href="{% url 'appointment_updatestatus' appointment.id %}" class="action-btn">Update Status</a>
+                    {% if request.user.role == "PATIENT" %}
+                      <a href="{% url 'reschedule_appointment' appointment.id %}" class="action-btn">Reschedule</a>
+                     {% endif %}
                 </td>
             </tr>
             {% empty %}

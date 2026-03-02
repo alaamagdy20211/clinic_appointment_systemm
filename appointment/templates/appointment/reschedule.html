@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reschedule Appointment</title>
+</head>
+<body>
+    <h2>Reschedule Appointment #{{ appointment.id }}</h2>
+    <p>Doctor: {{ appointment.doctor.username }}</p>
+    <p>Current Slot: {{ appointment.slot.date }} {{ appointment.slot.start_time }} - {{ appointment.slot.end_time }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Reschedule</button>
+        <a href="{% url 'appointment_list' %}">Cancel</a>
+    </form>
+</body>
+</html>
