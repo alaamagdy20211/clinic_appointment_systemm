@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.db import transaction, IntegrityError
 from django.utils.timezone import now
+from django.utils import timezone
+from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from .forms import DoctorSelectionForm
 from .models import Appointment
@@ -156,3 +158,25 @@ def receptionist_check_in(request, pk):
         messages.error(request, e.message)
 
     return redirect("appointment_list")
+
+class DoctorQueueView(LoginRequiredMixin, ListView):
+    model = Appointment
+    template_name = "appointments/doctor_queue.html"
+    context_object_name = "queue"
+
+    def get_queryset(self):
+        today = timezone.localdate()
+        return (
+            Appointment.objects.filter(
+                doctor=self.request.user,
+                status='CHECKED_IN',
+                slot__date=today
+            )
+            .order_by('check_in_time')
+            .select_related('patient', 'slot')
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        return context

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import AppointmentListView,UpdateAppointmentStatusView
+from .views import AppointmentListView, UpdateAppointmentStatusView, DoctorQueueView
 from . import views
 
 urlpatterns = [
@@ -10,6 +10,6 @@ urlpatterns = [
     path('success/', views.appointment_success, name='appointment_success'),
     path('reschedule/<int:pk>/', views.reschedule_appointment, name='reschedule_appointment'),
     path("check-in/<int:pk>/", views.receptionist_check_in, name="check_in_patient"),
-
+    path('doctor/queue/', DoctorQueueView.as_view(), name='doctor_queue'),
 ]
 
