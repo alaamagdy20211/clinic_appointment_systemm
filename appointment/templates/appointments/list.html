@@ -86,10 +86,24 @@
 </td>
                 <td>{{ appointment.status }}</td>
                 <td>
-                    <a href="{% url 'appointment_updatestatus' appointment.id %}" class="action-btn">Update Status</a>
+                    <!-- <a href="{% url 'appointment_updatestatus' appointment.id %}" class="action-btn">Update Status</a> -->
+
+                    {% if request.user.role == "RECEPTIONIST" and appointment.status == "CONFIRMED" %}
+                        <a href="{% url 'check_in_patient' appointment.id %}"
+                        class="action-btn"
+                        style="background-color:#ff9800;">
+                        Check In
+                        </a>
+                    {% endif %}
+
+                    {% if not request.user.role == "RECEPTIONIST" or not appointment.status == "CONFIRMED" %}                        <a href="{% url 'appointment_updatestatus' appointment.id %}" class="action-btn">
+                            Update Status
+                        </a>
+                    {% endif %}
+
                     {% if request.user.role == "PATIENT" %}
-                      <a href="{% url 'reschedule_appointment' appointment.id %}" class="action-btn">Reschedule</a>
-                     {% endif %}
+                        <a href="{% url 'reschedule_appointment' appointment.id %}" class="action-btn">Reschedule</a>
+                    {% endif %}
                 </td>
             </tr>
             {% empty %}

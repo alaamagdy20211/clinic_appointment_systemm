@@ -139,3 +139,20 @@ def reschedule_appointment(request, pk):
         form = RescheduleAppointmentForm(appointment=appointment)
 
     return render(request, 'appointment/reschedule.html', {'form': form, 'appointment': appointment})
+
+
+@login_required
+def receptionist_check_in(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+
+    if request.user.role != "RECEPTIONIST":
+        messages.error(request, "Only receptionist can check-in patients.")
+        return redirect("appointment_list")
+
+    try:
+        appointment.check_in(request.user)
+        messages.success(request, "Patient checked in successfully.")
+    except ValidationError as e:
+        messages.error(request, e.message)
+
+    return redirect("appointment_list")
