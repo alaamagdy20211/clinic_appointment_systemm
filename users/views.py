@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 
 
-from users.permissions import AdminRequiredMixin, PatientRequiredMixin, PatientRequiredMixin
+from users.permissions import AdminRequiredMixin, PatientRequiredMixin, DoctorRequiredMixin, ReceptionistRequiredMixin
 from .models import User, DoctorProfile, PatientProfile, ReceptionistProfile
 from .forms import PatientRegistrationForm, UserUpdateForm, PatientProfileUpdateForm, DoctorRegistrationForm, ReceptionistRegistrationForm
 from django.contrib import messages
@@ -13,6 +13,7 @@ from django.contrib.auth.views import LoginView
 from .models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from appointment.models import Appointment
+from django.utils import timezone
 import csv
 from django.http import HttpResponse
 
@@ -24,7 +25,6 @@ class UserRegisterView(CreateView):
 
 class UserLoginView(LoginView):
     template_name = 'users/login.html'
-
     
 
 class UserLogoutView(LoginRequiredMixin, TemplateView):
@@ -33,12 +33,13 @@ class UserLogoutView(LoginRequiredMixin, TemplateView):
         request.session.flush()
         return redirect('login')
 
-class PatientProfileView(LoginRequiredMixin, TemplateView):
+class PatientProfileView(PatientRequiredMixin, TemplateView):
     template_name = 'users/profile.html'
 
     def get(self, request):
+        profile, _ = PatientProfile.objects.get_or_create(user=request.user)
         user_form = UserUpdateForm(instance=request.user)
-        profile_form = PatientProfileUpdateForm(instance=request.user.patient_profile)
+        profile_form = PatientProfileUpdateForm(instance=profile)
         
         context = {
             'user_form': user_form,
@@ -47,8 +48,9 @@ class PatientProfileView(LoginRequiredMixin, TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request):
+        profile, _ = PatientProfile.objects.get_or_create(user=request.user)
         user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = PatientProfileUpdateForm(request.POST, instance=request.user.patient_profile)
+        profile_form = PatientProfileUpdateForm(request.POST, instance=profile)
 
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
@@ -129,9 +131,61 @@ class HomeRedirectView(LoginRequiredMixin, View):
 class PatientDashboardView(PatientRequiredMixin, TemplateView):
     """The actual homepage for the Patient."""
     template_name = 'users/patient_dashboard.html'
-    
-    # Later, Janna will add a get_context_data method here to fetch 
-    # the patient's upcoming appointments from the database.
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        today = timezone.localdate()
+        upcoming = Appointment.objects.filter(
+            patient=self.request.user,
+            slot__date__gte=today,
+            status__in=['REQUESTED', 'CONFIRMED', 'CHECKED_IN']
+        ).select_related('doctor', 'slot').order_by('slot__date', 'slot__start_time')[:5]
+        context['upcoming_appointments'] = upcoming
+        context['upcoming_count'] = upcoming.count()
+        return context
+
+
+class DoctorDashboardView(DoctorRequiredMixin, TemplateView):
+    template_name = 'users/doctor_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        doctor = self.request.user
+        today = timezone.localdate()
+
+        all_appts = Appointment.objects.filter(doctor=doctor).select_related('patient', 'slot')
+        today_appts = all_appts.filter(slot__date=today).order_by('slot__start_time')
+
+        context['today_appointments'] = today_appts
+        context['today_count'] = today_appts.count()
+        context['total_count'] = all_appts.count()
+        context['pending_count'] = today_appts.filter(status=Appointment.Status.REQUESTED).count()
+        context['confirmed_count'] = today_appts.filter(status=Appointment.Status.CONFIRMED).count()
+        context['checked_in_count'] = today_appts.filter(status=Appointment.Status.CHECKED_IN).count()
+        context['completed_count'] = today_appts.filter(status=Appointment.Status.COMPLETED).count()
+        context['today'] = today
+        return context
+
+
+class ReceptionistDashboardView(ReceptionistRequiredMixin, TemplateView):
+    template_name = 'users/receptionist_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        today = timezone.localdate()
+
+        all_appts = Appointment.objects.filter(slot__date=today).select_related('patient', 'doctor', 'slot').order_by('slot__start_time')
+
+        context['today_appointments'] = all_appts
+        context['today_count'] = all_appts.count()
+        context['pending_count'] = all_appts.filter(status=Appointment.Status.REQUESTED).count()
+        context['confirmed_count'] = all_appts.filter(status=Appointment.Status.CONFIRMED).count()
+        context['checked_in_count'] = all_appts.filter(status=Appointment.Status.CHECKED_IN).count()
+        context['completed_count'] = all_appts.filter(status=Appointment.Status.COMPLETED).count()
+        context['total_patients'] = User.objects.filter(role=User.Role.PATIENT).count()
+        context['total_doctors'] = User.objects.filter(role=User.Role.DOCTOR).count()
+        context['today'] = today
+        return context
 
 
 class ExportAppointmentsCSV(View):

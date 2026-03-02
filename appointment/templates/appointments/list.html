@@ -2,82 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Appointments List</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 90%;
-            margin: 20px auto;
-        }
-        th, td {
-            border: 1px solid #333;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #eee;
-        }
-        .action-btn {
-            padding: 4px 8px;
-            text-decoration: none;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 4px;
-        }
-        .action-btn:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>My Appointments</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h2 style="text-align:center;">Appointments List</h2>
+<body class="bg-gray-50 text-gray-800 font-sans">
 
-    <div style="text-align:center; margin-bottom:20px;">
-    {% if request.user.role == "PATIENT" %}
-        <strong>Patient:</strong> {{ request.user.username }}
-    {% elif request.user.role == "DOCTOR" %}
-        <strong>Doctor:</strong> {{ request.user.username }} /
-        <strong>Specialization:</strong> {{ request.user.doctor_profile.specialization|default:"N/A" }}
-    {% else %}
-        <strong>User:</strong> {{ request.user.username }} /
-        <strong>Role:</strong> {{ request.user.role }}
-    {% endif %}
-</div>
+    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow">
+        <div class="text-xl font-bold">Clinic Portal</div>
+        <div class="space-x-4 flex items-center">
+            <span class="font-medium">{{ request.user.get_full_name|default:request.user.username }}</span>
+            {% if request.user.role == "PATIENT" %}
+                <a href="{% url 'patient_dashboard' %}" class="hover:underline">Dashboard</a>
+            {% elif request.user.role == "DOCTOR" %}
+                <a href="{% url 'doctor_dashboard' %}" class="hover:underline">Dashboard</a>
+            {% endif %}
+            <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded">Logout</a>
+        </div>
+    </nav>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                {% if request.user.role == "PATIENT" %}
-                    <th>Doctor</th>
-                    <th>Specialization</th>
-                {% elif request.user.role == "DOCTOR" %}
-                    <th>Patient</th>
-                {% else %}
-                    <th>Patient</th>
-                    <th>Doctor</th>
-                    <th>Specialization</th>
-                {% endif %}
-                <th>Slot</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for appointment in appointments %}
-            <tr>
-                <td>{{ appointment.id }}</td>
+    <main class="max-w-6xl mx-auto mt-10 p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold">My Appointments</h1>
+            {% if request.user.role == "PATIENT" %}
+                <a href="{% url 'select_doctor' %}"
+                   class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded transition">
+                    + Book New
+                </a>
+            {% endif %}
+        </div>
 
-                {% if request.user.role == "PATIENT" %}
-                    <td>{{ appointment.doctor.username }}</td>
-                    <td>{{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}</td>
-                {% elif request.user.role == "DOCTOR" %}
-                    <td>{{ appointment.patient.username }}</td>
-                {% else %}
-                    <td>{{ appointment.patient.username }}</td>
-                    <td>{{ appointment.doctor.username }}</td>
-                    <td>{{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}</td>
-                {% endif %}
+        {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for message in messages %}
+                    <div class="px-4 py-3 rounded border
+                        {% if message.tags == 'success' %}bg-green-50 border-green-400 text-green-800
+                        {% elif message.tags == 'error' %}bg-red-50 border-red-400 text-red-800
+                        {% else %}bg-blue-50 border-blue-400 text-blue-800{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
 
                <td>
     {{ appointment.slot.date|date:"M d, Y" }}
@@ -113,5 +79,91 @@
             {% endfor %}
         </tbody>
     </table>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            {% if appointments %}
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 text-sm uppercase tracking-wide">
+                            <th class="px-6 py-3">#</th>
+                            {% if request.user.role == "PATIENT" %}
+                                <th class="px-6 py-3">Doctor</th>
+                                <th class="px-6 py-3">Specialization</th>
+                            {% elif request.user.role == "DOCTOR" %}
+                                <th class="px-6 py-3">Patient</th>
+                            {% else %}
+                                <th class="px-6 py-3">Patient</th>
+                                <th class="px-6 py-3">Doctor</th>
+                                <th class="px-6 py-3">Specialization</th>
+                            {% endif %}
+                            <th class="px-6 py-3">Date & Time</th>
+                            <th class="px-6 py-3">Status</th>
+                            <th class="px-6 py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in appointments %}
+                        <tr class="border-t hover:bg-gray-50">
+                            <td class="px-6 py-4 text-gray-500">{{ appointment.id }}</td>
+
+                            {% if request.user.role == "PATIENT" %}
+                                <td class="px-6 py-4 font-medium">Dr. {{ appointment.doctor.get_full_name|default:appointment.doctor.username }}</td>
+                                <td class="px-6 py-4 text-gray-500">{{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}</td>
+                            {% elif request.user.role == "DOCTOR" %}
+                                <td class="px-6 py-4 font-medium">{{ appointment.patient.get_full_name|default:appointment.patient.username }}</td>
+                            {% else %}
+                                <td class="px-6 py-4">{{ appointment.patient.get_full_name|default:appointment.patient.username }}</td>
+                                <td class="px-6 py-4">Dr. {{ appointment.doctor.get_full_name|default:appointment.doctor.username }}</td>
+                                <td class="px-6 py-4 text-gray-500">{{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}</td>
+                            {% endif %}
+
+                            <td class="px-6 py-4">
+                                {{ appointment.slot.date|date:"M d, Y" }}<br>
+                                <span class="text-gray-500 text-sm">
+                                    {{ appointment.slot.start_time|time:"g:i A" }} – {{ appointment.slot.end_time|time:"g:i A" }}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded
+                                    {% if appointment.status == 'REQUESTED' %}bg-yellow-100 text-yellow-800
+                                    {% elif appointment.status == 'CONFIRMED' %}bg-green-100 text-green-800
+                                    {% elif appointment.status == 'CHECKED_IN' %}bg-purple-100 text-purple-800
+                                    {% elif appointment.status == 'COMPLETED' %}bg-gray-100 text-gray-700
+                                    {% elif appointment.status == 'CANCELLED' %}bg-red-100 text-red-700
+                                    {% elif appointment.status == 'NO_SHOW' %}bg-orange-100 text-orange-700
+                                    {% endif %}">
+                                    {{ appointment.get_status_display }}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-4 space-x-2 whitespace-nowrap">
+                                <a href="{% url 'appointment_updatestatus' appointment.id %}"
+                                   class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
+                                    Update Status
+                                </a>
+                                {% if request.user.role == "PATIENT" %}
+                                    <a href="{% url 'reschedule_appointment' appointment.id %}"
+                                       class="inline-block bg-gray-500 hover:bg-gray-600 text-white text-xs font-medium px-3 py-1 rounded transition">
+                                        Reschedule
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="px-6 py-12 text-center text-gray-400">
+                    No appointments found.
+                    {% if request.user.role == "PATIENT" %}
+                        <a href="{% url 'select_doctor' %}" class="text-blue-600 hover:underline ml-1">Book one now</a>.
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+
 </body>
 </html>
