@@ -44,42 +44,6 @@
             </div>
         {% endif %}
 
-
-               <td>
-    {{ appointment.slot.date|date:"M d, Y" }}
-    {{ appointment.slot.start_time|time:"h:i A" }} -
-    {{ appointment.slot.end_time|time:"h:i A" }}
-</td>
-                <td>{{ appointment.status }}</td>
-                <td>
-                    <!-- <a href="{% url 'appointment_updatestatus' appointment.id %}" class="action-btn">Update Status</a> -->
-
-                    {% if request.user.role == "RECEPTIONIST" and appointment.status == "CONFIRMED" %}
-                        <a href="{% url 'check_in_patient' appointment.id %}"
-                        class="action-btn"
-                        style="background-color:#ff9800;">
-                        Check In
-                        </a>
-                    {% endif %}
-
-                    {% if not request.user.role == "RECEPTIONIST" or not appointment.status == "CONFIRMED" %}                        <a href="{% url 'appointment_updatestatus' appointment.id %}" class="action-btn">
-                            Update Status
-                        </a>
-                    {% endif %}
-
-                    {% if request.user.role == "PATIENT" %}
-                        <a href="{% url 'reschedule_appointment' appointment.id %}" class="action-btn">Reschedule</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7">No appointments found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
             {% if appointments %}
                 <table class="w-full text-left">
