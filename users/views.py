@@ -13,10 +13,12 @@ from django.contrib.auth.views import LoginView
 from .models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from appointment.models import Appointment
+from scheduling.models import ScheduleException, DoctorSchedule
+from scheduling.services import DeleteOverdueExeptions
 from django.utils import timezone
 import csv
 from django.http import HttpResponse
-
+from datetime import datetime, timedelta, date
 class UserRegisterView(CreateView):
     model = User
     form_class = PatientRegistrationForm
@@ -151,11 +153,27 @@ class DoctorDashboardView(DoctorRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         doctor = self.request.user
-        today = timezone.localdate()
+        today = date.today()
+
+        ScheduleException.objects.filter(date__lt=today).delete()
 
         all_appts = Appointment.objects.filter(doctor=doctor).select_related('patient', 'slot')
         today_appts = all_appts.filter(slot__date=today).order_by('slot__start_time')
 
+        # Build weekly list
+        DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        schedule_days = {s.day_of_week: s for s in DoctorSchedule.objects.filter(doctor=doctor)}
+        exceptions = ScheduleException.objects.filter(doctor=doctor).order_by('date')
+
+        weekly = []
+        for i, day_name in enumerate(DAYS):
+            weekly.append({
+                'day_name': day_name,
+                'schedule': schedule_days.get(i),
+                'exceptions': [e for e in exceptions if e.date.weekday() == i],
+            })
+
+        context['weekly'] = weekly  
         context['today_appointments'] = today_appts
         context['today_count'] = today_appts.count()
         context['total_count'] = all_appts.count()

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doctor Dashboard</title>
+</head>
+<body>
+    <h1>Doctor Dashboard</h1>
+
+    <h2>My Weekly Schedule</h2>
+    {% if object_list %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Slot Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for schedule in object_list %}
+                <tr>
+                    <td>{{ schedule.get_day_of_week_display }}</td>
+                    <td>{{ schedule.start_time }}</td>
+                    <td>{{ schedule.end_time }}</td>
+                    <td>{{ schedule.get_slot_duration_display }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No schedule found.</p>
+    {% endif %}
+
+    <hr>
+
+    <h2>Schedule Exceptions</h2>
+    {% if exceptions %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Reason</th>
+                    <th>Working Day?</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exception in exceptions %}
+                <tr>
+                    <td>{{ exception.date }}</td>
+                    <td>{{ exception.start_time|default:"-" }}</td>
+                    <td>{{ exception.end_time|default:"-" }}</td>
+                    <td>{{ exception.reason }}</td>
+                    <td>{{ exception.is_working_day|yesno:"Yes,No" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No exceptions found.</p>
+    {% endif %}
+        <a href="{% url 'appointment_list' %}"><button>View Appointments</button></a>
+</body>
+</html>

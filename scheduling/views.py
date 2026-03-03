@@ -5,15 +5,27 @@ from django.urls import reverse_lazy
 from .models import DoctorSchedule, AppointmentSlot, ScheduleException
 from datetime import date, timedelta
 from .forms import ScheduleForm, ScheduleExceptionForm
-from .services import generate_slots_for_day, CancelSlotsForException
-# class ScheduleListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+from .services import generate_slots_for_day, CancelSlotsForException, DeleteOverdueExeptions
 
-# class ScheduleListView(ListView):
-#     model = DoctorSchedule
-#     template_name = 'scheduling/schedule_list.html'
+class DoctorDashboardView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = DoctorSchedule
+    template_name = 'scheduling/doctor_dashboard.html'
 
-#     def get_queryset(self):
-#         return DoctorSchedule.objects.filter(doctor=self.request.user.doctor_profile)
+    
+    def get_queryset(self):
+        DeleteOverdueExeptions()
+        return DoctorSchedule.objects.filter(doctor=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['exceptions'] = ScheduleException.objects.filter(doctor=self.request.user)
+        return context
+    
+
+    def test_func(self):
+        
+        print(f"User role: '{self.request.user.role}'")
+        return self.request.user.role == 'DOCTOR'
 
 
 class ScheduleListView(LoginRequiredMixin, ListView):  
@@ -21,7 +33,7 @@ class ScheduleListView(LoginRequiredMixin, ListView):
     template_name = 'scheduling/schedule_list.html'
 
     def get_queryset(self):
-        return DoctorSchedule.objects.filter(doctor=self.request.user.doctor_profile)
+        return DoctorSchedule.objects.filter(doctor=self.request.user)
 
     def test_func(self):
         print(f"User role: '{self.request.user.role}'")
@@ -34,7 +46,7 @@ class ScheduleCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     success_url = reverse_lazy('schedule-list')
 
     def form_valid(self, form):
-        form.instance.doctor = self.request.user.doctor_profile
+        form.instance.doctor = self.request.user
         response = super().form_valid(form)
         # generate_slots_for_day(form.instance) todo
         generate_slots_for_day(form.instance)
@@ -51,7 +63,7 @@ class ScheduleExceptionCreateView(LoginRequiredMixin, UserPassesTestMixin, Creat
     success_url = reverse_lazy('schedule-list')
 
     def form_valid(self, form):
-        form.instance.doctor = self.request.user.doctor_profile
+        form.instance.doctor = self.request.user
         response = super().form_valid(form)
         if form.instance.is_working_day:
             generate_slots_for_day(form.instance)
