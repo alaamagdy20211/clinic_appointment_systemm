@@ -128,7 +128,7 @@ class Appointment(models.Model):
 
     @transaction.atomic
     def confirm (self,user):
-        if self.status != self.Status.REQUESTED:
+        if self.status != self.Status.REQUESTED :
             raise ValidationError("Only requested appointments can be confirmed.")
         if user.role not in ['DOCTOR', 'RECEPTIONIST']:
             raise ValidationError("Only Doctor or Receptionist can confirm appointments.")
@@ -178,7 +178,7 @@ class Appointment(models.Model):
 
     @transaction.atomic
     def complete(self,user):
-        if self.status != self.Status.CHECKED_IN:
+        if self.status != self.Status.CHECKED_IN :
             raise ValidationError("Only checked in-appointments can be completed.")
         if user.role !='DOCTOR':
             raise ValidationError("Only Doctor can complete appointments.")
