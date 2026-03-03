@@ -47,6 +47,9 @@ class Appointment(models.Model):
         return f"Appointment: {self.patient.username} with Dr. {self.doctor.username} on {self.slot.date} at {self.slot.start_time.strftime('%I:%M %p')  }-{self.status}"
 
     def clean(self):
+
+        if not self.slot_id:
+             return 
         active_statuses = [
             self.Status.REQUESTED,
             self.Status.CONFIRMED,

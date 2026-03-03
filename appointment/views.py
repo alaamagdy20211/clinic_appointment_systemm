@@ -29,7 +29,7 @@ def select_doctor(request):
         try:
             with transaction.atomic():  
                 appointment.clean()
-                appointment.save()
+                # appointment.save()
                 appointment.slot.is_booked = True
                 appointment.slot.save()
         except IntegrityError as e:
