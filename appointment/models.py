@@ -184,8 +184,8 @@ class Appointment(models.Model):
             raise ValidationError("Only Doctor can complete appointments.")
 
         # check in heba part about consultation record lma t3mlo fi model bt3aha howa mawgod wla laa
-        # if not hasattr(self, 'consultationrecord'):
-        #     raise ValidationError("Consultation record must be completed first.")
+        if not hasattr(self, 'consultation'):
+             raise ValidationError("Consultation record must be completed first.")
 
         self.status = self.Status.COMPLETED
         self.save()

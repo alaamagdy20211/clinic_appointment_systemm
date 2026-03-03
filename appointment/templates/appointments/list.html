@@ -71,20 +71,33 @@
                             <td class="px-6 py-4 text-gray-500">{{ appointment.id }}</td>
 
                             {% if request.user.role == "PATIENT" %}
-                                <td class="px-6 py-4 font-medium">Dr. {{ appointment.doctor.get_full_name|default:appointment.doctor.username }}</td>
-                                <td class="px-6 py-4 text-gray-500">{{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}</td>
+                                <td class="px-6 py-4 font-medium">
+                                    Dr. {{ appointment.doctor.get_full_name|default:appointment.doctor.username }}
+                                </td>
+                                <td class="px-6 py-4 text-gray-500">
+                                    {{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}
+                                </td>
                             {% elif request.user.role == "DOCTOR" %}
-                                <td class="px-6 py-4 font-medium">{{ appointment.patient.get_full_name|default:appointment.patient.username }}</td>
+                                <td class="px-6 py-4 font-medium">
+                                    {{ appointment.patient.get_full_name|default:appointment.patient.username }}
+                                </td>
                             {% else %}
-                                <td class="px-6 py-4">{{ appointment.patient.get_full_name|default:appointment.patient.username }}</td>
-                                <td class="px-6 py-4">Dr. {{ appointment.doctor.get_full_name|default:appointment.doctor.username }}</td>
-                                <td class="px-6 py-4 text-gray-500">{{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}</td>
+                                <td class="px-6 py-4">
+                                    {{ appointment.patient.get_full_name|default:appointment.patient.username }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    Dr. {{ appointment.doctor.get_full_name|default:appointment.doctor.username }}
+                                </td>
+                                <td class="px-6 py-4 text-gray-500">
+                                    {{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}
+                                </td>
                             {% endif %}
 
                             <td class="px-6 py-4">
                                 {{ appointment.slot.date|date:"M d, Y" }}<br>
                                 <span class="text-gray-500 text-sm">
-                                    {{ appointment.slot.start_time|time:"g:i A" }} – {{ appointment.slot.end_time|time:"g:i A" }}
+                                    {{ appointment.slot.start_time|time:"g:i A" }} –
+                                    {{ appointment.slot.end_time|time:"g:i A" }}
                                 </span>
                             </td>
 
@@ -93,7 +106,7 @@
                                     {% if appointment.status == 'REQUESTED' %}bg-yellow-100 text-yellow-800
                                     {% elif appointment.status == 'CONFIRMED' %}bg-green-100 text-green-800
                                     {% elif appointment.status == 'CHECKED_IN' %}bg-purple-100 text-purple-800
-                                    {% elif appointment.status == 'COMPLETED' %}bg-gray-100 text-gray-700
+                                    {% elif appointment.status == 'COMPLETED' %}bg-grey-100 text-gray-700
                                     {% elif appointment.status == 'CANCELLED' %}bg-red-100 text-red-700
                                     {% elif appointment.status == 'NO_SHOW' %}bg-orange-100 text-orange-700
                                     {% endif %}">
@@ -102,16 +115,51 @@
                             </td>
 
                             <td class="px-6 py-4 space-x-2 whitespace-nowrap">
-                                <a href="{% url 'appointment_updatestatus' appointment.id %}"
-                                   class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
-                                    Update Status
-                                </a>
+
+                                <!-- Update Status -->
+                                {% if appointment.status == "COMPLETED" %}
+                                    <span class="inline-block bg-gray-300 text-gray-500 text-xs font-medium px-3 py-1 rounded cursor-not-allowed">
+                                        Update Status
+                                    </span>
+                                {% else %}
+                                    <a href="{% url 'appointment_updatestatus' appointment.id %}"
+                                       class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
+                                        Update Status
+                                    </a>
+                                {% endif %}
+
+                                <!-- Doctor: Add Consultation -->
+                                {% if request.user.role == "DOCTOR" %}
+                                    {% if appointment.status == "CHECKED_IN" %}
+                                        {% if not appointment.consultation %}
+                                            <a href="{% url 'create_consultation' appointment.id %}"
+                                               class="inline-block bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-3 py-1 rounded transition">
+                                                Add Consultation
+                                            </a>
+
+
+                                        {% endif %}
+                                  {% endif %}
+                                {% endif %}
+
+                                <!-- Patient: Reschedule -->
                                 {% if request.user.role == "PATIENT" %}
                                     <a href="{% url 'reschedule_appointment' appointment.id %}"
                                        class="inline-block bg-gray-500 hover:bg-gray-600 text-white text-xs font-medium px-3 py-1 rounded transition">
                                         Reschedule
                                     </a>
                                 {% endif %}
+
+                                <!-- Patient: View Consultation -->
+                                {% if request.user.role == "PATIENT" %}
+                                    {% if appointment.status == "COMPLETED" and appointment.consultation %}
+                                        <a href="{% url 'view_consultation' appointment.id %}"
+                                           class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-3 py-1 rounded transition">
+                                            View Consultation
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+
                             </td>
                         </tr>
                         {% endfor %}
@@ -121,13 +169,14 @@
                 <div class="px-6 py-12 text-center text-gray-400">
                     No appointments found.
                     {% if request.user.role == "PATIENT" %}
-                        <a href="{% url 'select_doctor' %}" class="text-blue-600 hover:underline ml-1">Book one now</a>.
+                        <a href="{% url 'select_doctor' %}" class="text-blue-600 hover:underline ml-1">
+                            Book one now
+                        </a>.
                     {% endif %}
                 </div>
             {% endif %}
         </div>
     </main>
-
 
 </body>
 </html>
