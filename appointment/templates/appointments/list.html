@@ -121,11 +121,7 @@
                                     <span class="inline-block bg-gray-300 text-gray-500 text-xs font-medium px-3 py-1 rounded cursor-not-allowed">
                                         Update Status
                                     </span>
-                                {% else %}
-                                    <a href="{% url 'appointment_updatestatus' appointment.id %}"
-                                       class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
-                                        Update Status
-                                    </a>
+
                                 {% endif %}
 
                                 <!-- Doctor: Add Consultation -->
@@ -144,7 +140,7 @@
 
                                 <!-- Patient: Reschedule -->
                                 {% if not request.user.role == "RECEPTIONIST" or not appointment.status == "CONFIRMED" %}
-                                    <a href="{% url 'appointment_updatestatus' appointment.id %}" 
+                                    <a href="{% url 'appointment_updatestatus' appointment.id %}"
                                     class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
                                         Update Status
                                     </a>
@@ -155,7 +151,7 @@
                                         Check In
                                     </a>
                                 {% endif %}
-                                
+
                                 {% if request.user.role == "PATIENT" %}
                                     <a href="{% url 'reschedule_appointment' appointment.id %}"
                                        class="inline-block bg-gray-500 hover:bg-gray-600 text-white text-xs font-medium px-3 py-1 rounded transition">
