@@ -16,9 +16,18 @@
     </nav>
 
     <main class="max-w-6xl mx-auto mt-10 p-6">
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold">Receptionist Dashboard</h1>
-            <p class="text-gray-500 mt-1">Today — {{ today }}</p>
+        <div class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold">Receptionist Dashboard</h1>
+                <p class="text-gray-500 mt-1">Today — {{ today }}</p>
+            </div>
+            <div>
+                <!-- View All Appointments Button -->
+                <a href="{% url 'appointment_list' %}"
+                   class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded transition">
+                    update Appointments
+                </a>
+            </div>
         </div>
 
         <!-- Stats -->

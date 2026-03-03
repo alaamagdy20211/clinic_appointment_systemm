@@ -163,7 +163,7 @@ class Appointment(models.Model):
         self.check_in_time = timezone.now()
         self.save()
 
-
+    @transaction.atomic
     def mark_no_show(self,user):
         if self.status != self.Status.CONFIRMED:
             raise ValidationError("Only confirmed appointments can be marked no show.")
@@ -176,7 +176,7 @@ class Appointment(models.Model):
         self.slot.is_booked = False
         self.slot.save()
 
-
+    @transaction.atomic
     def complete(self,user):
         if self.status != self.Status.CHECKED_IN:
             raise ValidationError("Only checked in-appointments can be completed.")
@@ -184,8 +184,8 @@ class Appointment(models.Model):
             raise ValidationError("Only Doctor can complete appointments.")
 
         # check in heba part about consultation record lma t3mlo fi model bt3aha howa mawgod wla laa
-        # if not hasattr(self, 'consultationrecord'):
-        #     raise ValidationError("Consultation record must be completed first.")
+        if not hasattr(self, 'consultation'):
+             raise ValidationError("Consultation record must be completed first.")
 
         self.status = self.Status.COMPLETED
         self.save()
