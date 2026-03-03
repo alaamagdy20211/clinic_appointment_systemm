@@ -196,8 +196,8 @@ def create_consultation(request, pk):
         return redirect("appointment_list")
 
     # Must be completed
-    if appointment.status != Appointment.Status.COMPLETED:
-        messages.error(request, "Consultation can only be created for completed appointments.")
+    if appointment.status != Appointment.Status.CHECKED_IN:
+        messages.error(request, "Consultation can only be created for checked_in appointments.")
         return redirect("appointment_list")
 
     # Prevent duplicate consultation
