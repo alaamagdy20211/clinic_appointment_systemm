@@ -1,19 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Doctor Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body>
+    <h1>Doctor Dashboard</h1>
 
-    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow">
-        <div class="text-xl font-bold">Clinic Portal</div>
-        <div class="space-x-4 flex items-center">
-            <span class="font-medium">Dr. {{ user.get_full_name|default:user.username }}</span>
-            <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded">Logout</a>
-        </div>
-    </nav>
+    <h2>My Weekly Schedule</h2>
+    {% if object_list %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Slot Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for schedule in object_list %}
+                <tr>
+                    <td>{{ schedule.get_day_of_week_display }}</td>
+                    <td>{{ schedule.start_time }}</td>
+                    <td>{{ schedule.end_time }}</td>
+                    <td>{{ schedule.get_slot_duration_display }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No schedule found.</p>
+    {% endif %}
 
     <main class="max-w-6xl mx-auto mt-10 p-6">
         <div class="mb-8">
@@ -220,5 +237,33 @@
         </div>
     </main>
 
+    <h2>Schedule Exceptions</h2>
+    {% if exceptions %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Reason</th>
+                    <th>Working Day?</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exception in exceptions %}
+                <tr>
+                    <td>{{ exception.date }}</td>
+                    <td>{{ exception.start_time|default:"-" }}</td>
+                    <td>{{ exception.end_time|default:"-" }}</td>
+                    <td>{{ exception.reason }}</td>
+                    <td>{{ exception.is_working_day|yesno:"Yes,No" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No exceptions found.</p>
+    {% endif %}
+        <a href="{% url 'appointment_list' %}"><button>View Appointments</button></a>
 </body>
 </html>
