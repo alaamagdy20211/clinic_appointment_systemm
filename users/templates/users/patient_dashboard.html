@@ -86,10 +86,7 @@
                                     {{ appt.get_status_display }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4">
-                                <a href="{% url 'reschedule_appointment' appt.id %}"
-                                   class="text-blue-600 hover:underline text-sm">Reschedule</a>
-                            </td>
+
                         </tr>
                         {% endfor %}
                     </tbody>
