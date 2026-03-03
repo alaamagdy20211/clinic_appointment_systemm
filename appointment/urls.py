@@ -11,5 +11,7 @@ urlpatterns = [
     path('reschedule/<int:pk>/', views.reschedule_appointment, name='reschedule_appointment'),
     path("check-in/<int:pk>/", views.receptionist_check_in, name="check_in_patient"),
     path('doctor/queue/', DoctorQueueView.as_view(), name='doctor_queue'),
+    path("consultation/create/<int:pk>/", views.create_consultation, name="create_consultation"),
+    path("consultation/view/<int:pk>/", views.view_consultation, name="view_consultation"),
 ]
 
