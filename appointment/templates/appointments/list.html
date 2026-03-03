@@ -106,7 +106,7 @@
                                     {% if appointment.status == 'REQUESTED' %}bg-yellow-100 text-yellow-800
                                     {% elif appointment.status == 'CONFIRMED' %}bg-green-100 text-green-800
                                     {% elif appointment.status == 'CHECKED_IN' %}bg-purple-100 text-purple-800
-                                    {% elif appointment.status == 'COMPLETED' %}bg-grey-100 text-gray-700
+                                    {% elif appointment.status == 'COMPLETED' %}bg-green-100 text-green-1000
                                     {% elif appointment.status == 'CANCELLED' %}bg-red-100 text-red-700
                                     {% elif appointment.status == 'NO_SHOW' %}bg-orange-100 text-orange-700
                                     {% endif %}">
@@ -114,66 +114,67 @@
                                 </span>
                             </td>
 
-                            <td class="px-6 py-4 space-x-2 whitespace-nowrap">
-
-                                <!-- Update Status -->
-                                {% if appointment.status == "COMPLETED" %}
-                                    <span class="inline-block bg-gray-300 text-gray-500 text-xs font-medium px-3 py-1 rounded cursor-not-allowed">
-                                        Update Status
-                                    </span>
-                                {% else %}
-                                    <a href="{% url 'appointment_updatestatus' appointment.id %}"
-                                       class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
-                                        Update Status
-                                    </a>
-                                {% endif %}
-
-                                <!-- Doctor: Add Consultation -->
-                                {% if request.user.role == "DOCTOR" %}
-                                    {% if appointment.status == "CHECKED_IN" %}
-                                        {% if not appointment.consultation %}
-                                            <a href="{% url 'create_consultation' appointment.id %}"
-                                               class="inline-block bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-3 py-1 rounded transition">
-                                                Add Consultation
-                                            </a>
 
 
-                                        {% endif %}
-                                  {% endif %}
-                                {% endif %}
+  <td class="px-6 py-4 space-x-2 whitespace-nowrap">
 
-                                <!-- Patient: Reschedule -->
-                                {% if not request.user.role == "RECEPTIONIST" or not appointment.status == "CONFIRMED" %}
-                                    <a href="{% url 'appointment_updatestatus' appointment.id %}" 
-                                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
-                                        Update Status
-                                    </a>
-                                {% endif %}
-                                {% if request.user.role == "RECEPTIONIST" and appointment.status == "CONFIRMED" %}
-                                    <a href="{% url 'check_in_patient' appointment.id %}"
-                                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
-                                        Check In
-                                    </a>
-                                {% endif %}
-                                
-                                {% if request.user.role == "PATIENT" %}
-                                    <a href="{% url 'reschedule_appointment' appointment.id %}"
-                                       class="inline-block bg-gray-500 hover:bg-gray-600 text-white text-xs font-medium px-3 py-1 rounded transition">
-                                        Reschedule
-                                    </a>
-                                {% endif %}
+    {# --- Common Update Status logic --- #}
+    {% if appointment.status == "COMPLETED" or appointment.status == "CANCELLED"  or appointment.status == "NO_SHOW"  %}
+    <span class="inline-block bg-gray-300 text-gray-500 text-xs font-medium px-3 py-1 rounded cursor-not-allowed">
+        Update Status
+    </span>
 
-                                <!-- Patient: View Consultation -->
-                                {% if request.user.role == "PATIENT" %}
-                                    {% if appointment.status == "COMPLETED" and appointment.consultation %}
-                                        <a href="{% url 'view_consultation' appointment.id %}"
-                                           class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-3 py-1 rounded transition">
-                                            View Consultation
-                                        </a>
-                                    {% endif %}
-                                {% endif %}
+{% elif appointment.status == "CONFIRMED" and request.user.role == "PATIENT" %}
+    <span class="inline-block bg-gray-300 text-gray-500 text-xs font-medium px-3 py-1 rounded cursor-not-allowed">
+        Update Status
+    </span>
 
-                            </td>
+{% else %}
+    <a href="{% url 'appointment_updatestatus' appointment.id %}"
+       class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
+        Update Status
+    </a>
+{% endif %}
+
+
+    {# --- Receptionist Check-In --- #}
+    {% if request.user.role == "RECEPTIONIST" and appointment.status == "CONFIRMED" %}
+        <a href="{% url 'check_in_patient' appointment.id %}"
+           class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
+            Check In
+        </a>
+    {% endif %}
+
+    {# --- Doctor Consultation --- #}
+    {% if request.user.role == "DOCTOR" and appointment.status == "CHECKED_IN" %}
+        {% if not appointment.consultation %}
+            <a href="{% url 'create_consultation' appointment.id %}"
+               class="inline-block bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-3 py-1 rounded transition">
+                Add Consultation
+            </a>
+        {% else %}
+            <span class="inline-block bg-gray-200 text-green-700 text-xs font-medium px-3 py-1 rounded">
+                Consultation Added
+            </span>
+        {% endif %}
+    {% endif %}
+
+    {# --- Patient Reschedule / View Consultation --- #}
+    {% if request.user.role == "PATIENT" %}
+        {% if appointment.status == "COMPLETED" and appointment.consultation %}
+            <a href="{% url 'view_consultation' appointment.id %}"
+               class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-3 py-1 rounded transition">
+                View Consultation
+            </a>
+        {% elif appointment.status != "CANCELLED" %}
+            <a href="{% url 'reschedule_appointment' appointment.id %}"
+               class="inline-block bg-gray-500 hover:bg-gray-600 text-white text-xs font-medium px-3 py-1 rounded transition">
+                Reschedule
+            </a>
+        {% endif %}
+    {% endif %}
+
+</td>
                         </tr>
                         {% endfor %}
                     </tbody>

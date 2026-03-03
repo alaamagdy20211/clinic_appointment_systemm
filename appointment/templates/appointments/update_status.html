@@ -3,87 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <title>Update Appointment Status</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 60%;
-            margin: 20px auto;
-        }
-        th, td {
-            border: 1px solid #333;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #eee;
-        }
-        .form-container {
-            width: 60%;
-            margin: 20px auto;
-        }
-        textarea, select {
-            width: 100%;
-            padding: 6px;
-            margin-top: 4px;
-        }
-        .submit-btn {
-            margin-top: 10px;
-            padding: 8px 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-        .submit-btn:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h2 style="text-align:center;">Appointment Details</h2>
-    <!-- Back button -->
 
+<body class="bg-gray-50 text-gray-800 font-sans">
 
-    <table>
-        <tr>
-            <th>Patient</th>
-            <td>{{ appointment.patient.username }}</td>
-        </tr>
-        <tr>
-            <th>Doctor</th>
-            <td>{{ appointment.doctor.username }}</td>
-        </tr>
-        <tr>
-            <th>Specialization</th>
-            <td>{{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}</td>
-        </tr>
-        <tr>
-            <th>Slot</th>
-            <td>{{ appointment.slot.date|date:"M d, Y" }} {{ appointment.slot.start_time|time:"H:i" }} - {{ appointment.slot.end_time|time:"H:i" }}</td>
-        </tr>
-        <tr>
-            <th>Created At</th>
-            <td>{{ appointment.created_at|date:"M d, Y H:i" }}</td>
-        </tr>
-        <tr>
-            <th>Status</th>
-            <td>{{ appointment.status }}</td>
-        </tr>
-    </table>
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow">
+        <div class="text-xl font-bold">Clinic Portal</div>
+        <div class="space-x-4 flex items-center">
+            <span class="font-medium">
+                {{ request.user.get_full_name|default:request.user.username }}
+            </span>
+            <a href="{% url 'appointment_list' %}"
+               class="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100 transition">
+                ← Back
+            </a>
+        </div>
+    </nav>
 
-    <div class="form-container">
-        <h3>Update Status</h3>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="submit-btn">Update</button>
-        </form>
-    </div>
-<div style="text-align:center; margin-bottom: 20px;">
-        <a href="{% url 'appointment_list' %}"
-           style="text-decoration:none; padding:6px 12px; background-color:#2196F3; color:white; border-radius:4px;">
-           &larr; Back to Appointment List
-        </a>
-    </div>
+    <!-- Page Content -->
+    <main class="max-w-5xl mx-auto mt-10 p-6">
+
+        <!-- Page Title -->
+        <h1 class="text-3xl font-bold mb-8 text-center">
+            Update Appointment Status
+        </h1>
+
+        <!-- Appointment Details Card -->
+        <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+
+            <h2 class="text-xl font-semibold mb-6 border-b pb-2">
+                Appointment Details
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+
+                <!-- Patient Card -->
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <p class="text-gray-500 font-semibold text-xs uppercase mb-2">Patient</p>
+                    <p class="font-bold text-gray-900">
+                        {{ appointment.patient.username }}
+                    </p>
+                </div>
+
+                <!-- Doctor & Specialization Grouped Card -->
+                <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <div class="mb-4">
+                        <p class="text-gray-500 font-semibold text-xs uppercase mb-1">Doctor</p>
+                        <p class="font-bold text-lg text-blue-900">
+                            {{ appointment.doctor.username }}
+                        </p>
+                    </div>
+                    <div class="border-t border-blue-200 pt-3">
+                        <p class="text-gray-500 font-semibold text-xs uppercase mb-1">Specialization</p>
+                        <p class="font-medium text-blue-800">
+                            {{ appointment.doctor.doctor_profile.specialization|default:"N/A" }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Slot Card -->
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <p class="text-gray-500 font-semibold text-xs uppercase mb-2">Slot</p>
+                    <p class="font-bold text-gray-900">
+                        {{ appointment.slot.date|date:"M d, Y" }}
+                        <span class="block text-sm text-gray-600 font-normal mt-1">
+                            {{ appointment.slot.start_time|time:"H:i" }} -
+                            {{ appointment.slot.end_time|time:"H:i" }}
+                        </span>
+                    </p>
+                </div>
+
+                <!-- Created At Card -->
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <p class="text-gray-500 font-semibold text-xs uppercase mb-2">Created At</p>
+                    <p class="font-medium">
+                        {{ appointment.created_at|date:"M d, Y H:i" }}
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+       <!-- Error Messages -->
+        {% if form.non_field_errors %}
+        <div class="bg-red-100 border-l-4 border-red-600 text-red-800 p-4 mb-6 rounded">
+            <p class="font-semibold mb-2">⚠️ Error</p>
+            {% for error in form.non_field_errors %}
+                <p class="text-sm">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+       <!-- Status Management -->
+<div class="bg-white shadow-md rounded-xl p-8">
+
+    <h2 class="text-2xl font-bold mb-8 text-center border-b pb-4">
+        Status Management
+    </h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+
+            <!-- Current Status -->
+            <div class="flex flex-col items-center">
+                <p class="text-gray-500 text-sm font-semibold mb-3 uppercase">Current Status</p>
+                <span class="inline-block px-6 py-3 text-base font-bold rounded-lg shadow-sm
+                    {% if appointment.status == 'REQUESTED' %}bg-yellow-100 text-yellow-800
+                    {% elif appointment.status == 'CONFIRMED' %}bg-green-100 text-green-800
+                    {% elif appointment.status == 'CHECKED_IN' %}bg-purple-100 text-purple-800
+                    {% elif appointment.status == 'COMPLETED' %}bg-blue-100 text-blue-800
+                    {% elif appointment.status == 'CANCELLED' %}bg-red-100 text-red-700
+                    {% elif appointment.status == 'NO_SHOW' %}bg-orange-100 text-orange-700
+                    {% endif %}">
+                    {{ appointment.get_status_display }}
+                </span>
+            </div>
+
+            <!-- Divider -->
+            <div class="hidden md:block text-gray-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </div>
+
+            <!-- Change Status Dropdown -->
+            <div class="flex flex-col items-center">
+                <p class="text-gray-500 text-sm font-semibold mb-3 uppercase">Change To</p>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-5 border-2 border-green-300 shadow-md w-64">
+                    <select class="w-full px-4 py-3 border-2 border-green-400 rounded-lg bg-white text-gray-800 font-semibold focus:outline-none focus:ring-2 focus:ring-green-500 transition" name="{{ form.status.name }}" id="{{ form.status.id_for_label }}">
+                        <option value="">-- Select Status --</option>
+                        {% for value, label in form.status.field.choices %}
+                            {% if value %}
+                                <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="hidden md:block text-gray-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </div>
+
+            <!-- Update Button -->
+            <div class="flex flex-col items-center">
+                <p class="text-gray-500 text-sm font-semibold mb-3 uppercase invisible">Action</p>
+                <button type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    Update Status
+                </button>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+    </main>
+
 </body>
 </html>
