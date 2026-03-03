@@ -91,37 +91,89 @@ class Appointment(models.Model):
     #     return f"Appointment {self.id} - {self.status}"
 
 
+    # @transaction.atomic
+    # def reschedule(self, user, new_slot, reason):
+
+    #     if user.role not in ['PATIENT', 'DOCTOR', 'RECEPTIONIST']:
+    #         raise ValidationError("You do not have permission to reschedule this appointment.")
+    #     if user.role == 'PATIENT' and user != self.patient:
+    #         raise ValidationError("Patient can only reschedule their own appointment.")
+
+    #     if new_slot.is_booked:
+    #         raise ValidationError("Selected slot is already booked.")
+
+    #     old_slot = self.slot
+
+    #     self.slot = new_slot
+    #     self.status = self.Status.REQUESTED  
+    #     self.save()
+
+    #     old_slot.is_booked = False
+    #     old_slot.save()
+
+    #     new_slot.is_booked = True
+    #     new_slot.save()
+
+    #     AppointmentRescheduleLog.objects.create(
+    #         appointment=self,
+    #         old_slot=old_slot,
+    #         new_slot=new_slot,
+    #         changed_by=user,
+    #         reason=reason,
+    #         timestamp=timezone.now()
+    #     )
     @transaction.atomic
     def reschedule(self, user, new_slot, reason):
 
         if user.role not in ['PATIENT', 'DOCTOR', 'RECEPTIONIST']:
             raise ValidationError("You do not have permission to reschedule this appointment.")
+
         if user.role == 'PATIENT' and user != self.patient:
             raise ValidationError("Patient can only reschedule their own appointment.")
+
+        if self.status not in [self.Status.REQUESTED, self.Status.CONFIRMED]:
+            raise ValidationError("Only requested or confirmed appointments can be rescheduled.")
 
         if new_slot.is_booked:
             raise ValidationError("Selected slot is already booked.")
 
-        old_slot = self.slot
+        active_statuses = [
+            self.Status.REQUESTED,
+            self.Status.CONFIRMED,
+            self.Status.CHECKED_IN,
+        ]
 
-        self.slot = new_slot
-        self.status = self.Status.REQUESTED  
-        self.save()
+        overlapping = Appointment.objects.filter(
+            patient=self.patient,
+            slot__date=new_slot.date,
+            slot__start_time__lt=new_slot.end_time,
+            slot__end_time__gt=new_slot.start_time,
+            status__in=active_statuses
+        ).exclude(pk=self.pk)
+
+        if overlapping.exists():
+            raise ValidationError("This patient has an overlapping appointment.")
+
+        old_slot = self.slot
 
         old_slot.is_booked = False
         old_slot.save()
+
+        self.slot = new_slot
+        self.status = self.Status.REQUESTED
+        self.save()
 
         new_slot.is_booked = True
         new_slot.save()
 
         AppointmentRescheduleLog.objects.create(
-            appointment=self,
-            old_slot=old_slot,
-            new_slot=new_slot,
-            changed_by=user,
-            reason=reason,
-            timestamp=timezone.now()
-        )
+             appointment=self,
+             old_slot=old_slot,
+             new_slot=new_slot,
+             changed_by=user,
+             reason=reason,
+             timestamp=timezone.now()
+         )
   
 
 # Create your models here.
