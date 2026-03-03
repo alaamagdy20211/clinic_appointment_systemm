@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta, date
-from .models import AppointmentSlot
+from .models import AppointmentSlot, ScheduleException, DoctorSchedule
 
 def generate_slots_for_day(schedule_instance):
-    current_date = date.today() 
+    if isinstance(schedule_instance, DoctorSchedule):
+        current_date = date.today()  
+    elif isinstance(schedule_instance, ScheduleException):
+        current_date = schedule_instance.date
     
     start_dt = datetime.combine(current_date, schedule_instance.start_time)
     end_dt = datetime.combine(current_date, schedule_instance.end_time)
@@ -34,4 +37,10 @@ def CancelSlotsForException(exception_instance):
         is_booked=False
     ).delete()
     print(f"Deleted {deleted_count} unbooked slots for exception on {exception_instance.date}")
+    return 0
+
+def DeleteOverdueExeptions():
+    today = date.today()
+    deleted_count, _ = ScheduleException.objects.filter(date__lt=today).delete()
+    print(f"Deleted {deleted_count} overdue exceptions")
     return 0

@@ -52,6 +52,14 @@
                 <p class="text-sm text-gray-500 mb-3">View your weekly working hours.</p>
                 <a href="{% url 'schedule-list' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded transition">View Schedule</a>
             </div>
+            <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+                <h2 class="text-xl font-bold mb-2">My Appointments</h2>
+                <p class="text-gray-600 mb-4">View all your visits, history, and statuses.</p>
+                <a href="{% url 'appointment_list' %}"
+                   class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded transition">
+                    View All
+                </a>
+            </div>
             <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-green-500">
                 <h3 class="font-bold text-gray-800 mb-1">Add Working Day</h3>
                 <p class="text-sm text-gray-500 mb-3">Set a recurring schedule for a weekday.</p>
@@ -62,6 +70,105 @@
                 <p class="text-sm text-gray-500 mb-3">Block off a date or add an extra working day.</p>
                 <a href="{% url 'schedule-exception-create' %}" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium px-4 py-2 rounded transition">Add Exception</a>
             </div>
+        </div>
+
+        <!-- Weekly Schedule Table -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-10">
+            <div class="px-6 py-4 border-b">
+                <h2 class="text-xl font-bold">Weekly Schedule</h2>
+                <p class="text-sm text-gray-500 mt-1">Your regular schedule with any exceptions applied</p>
+            </div>
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600 text-sm uppercase tracking-wide">
+                        <th class="px-6 py-3">Day</th>
+                        <th class="px-6 py-3">Status</th>
+                        <th class="px-6 py-3">Start Time</th>
+                        <th class="px-6 py-3">End Time</th>
+                        <th class="px-6 py-3">Slot Duration</th>
+                        <th class="px-6 py-3">Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day in weekly %}
+                    <tr class="border-t hover:bg-gray-50">
+                        <td class="px-6 py-4 font-semibold">{{ day.day_name }}</td>
+
+                        {% if day.schedule %}
+                            {# This day has a regular schedule - now check for exceptions #}
+                            {# Note: exceptions_by_date uses dates, but weekly is by weekday #}
+                            {# To match exceptions to weekdays, handle this logic in the view #}
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">
+                                    Working
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">{{ day.schedule.start_time }}</td>
+                            <td class="px-6 py-4">{{ day.schedule.end_time }}</td>
+                            <td class="px-6 py-4">{{ day.schedule.get_slot_duration_display }}</td>
+                            <td class="px-6 py-4 text-gray-400">—</td>
+                        {% else %}
+                            {# No regular schedule for this day #}
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-500">
+                                    Day Off
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-400">—</td>
+                            <td class="px-6 py-4 text-gray-400">—</td>
+                            <td class="px-6 py-4 text-gray-400">—</td>
+                            <td class="px-6 py-4 text-gray-400">—</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Upcoming Exceptions Table -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-10">
+            <div class="px-6 py-4 border-b">
+                <h2 class="text-xl font-bold">Schedule Exceptions</h2>
+                <p class="text-sm text-gray-500 mt-1">One-time overrides to your regular schedule</p>
+            </div>
+            {% if exceptions %}
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 text-sm uppercase tracking-wide">
+                            <th class="px-6 py-3">Date</th>
+                            <th class="px-6 py-3">Status</th>
+                            <th class="px-6 py-3">Start Time</th>
+                            <th class="px-6 py-3">End Time</th>
+                            <th class="px-6 py-3">Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exception in exceptions %}
+                        <tr class="border-t hover:bg-gray-50">
+                            <td class="px-6 py-4 font-medium">{{ exception.date }}</td>
+                            <td class="px-6 py-4">
+                                {% if exception.is_working_day %}
+                                    <span class="px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800">
+                                        Extra Working Day
+                                    </span>
+                                {% else %}
+                                    <span class="px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-700">
+                                        Day Off
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">{{ exception.start_time|default:"—" }}</td>
+                            <td class="px-6 py-4">{{ exception.end_time|default:"—" }}</td>
+                            <td class="px-6 py-4 text-gray-500">{{ exception.reason }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="px-6 py-10 text-center text-gray-400">
+                    No exceptions set.
+                </div>
+            {% endif %}
         </div>
 
         <!-- Today's Appointments Table -->
