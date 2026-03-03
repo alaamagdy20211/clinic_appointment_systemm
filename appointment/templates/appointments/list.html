@@ -102,10 +102,19 @@
                             </td>
 
                             <td class="px-6 py-4 space-x-2 whitespace-nowrap">
-                                <a href="{% url 'appointment_updatestatus' appointment.id %}"
-                                   class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
-                                    Update Status
-                                </a>
+                                {% if not request.user.role == "RECEPTIONIST" or not appointment.status == "CONFIRMED" %}
+                                    <a href="{% url 'appointment_updatestatus' appointment.id %}" 
+                                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
+                                        Update Status
+                                    </a>
+                                {% endif %}
+                                {% if request.user.role == "RECEPTIONIST" and appointment.status == "CONFIRMED" %}
+                                    <a href="{% url 'check_in_patient' appointment.id %}"
+                                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded transition">
+                                        Check In
+                                    </a>
+                                {% endif %}
+                                
                                 {% if request.user.role == "PATIENT" %}
                                     <a href="{% url 'reschedule_appointment' appointment.id %}"
                                        class="inline-block bg-gray-500 hover:bg-gray-600 text-white text-xs font-medium px-3 py-1 rounded transition">
