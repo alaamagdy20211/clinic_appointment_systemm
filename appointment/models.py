@@ -5,6 +5,8 @@ from datetime import timedelta, datetime, time
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db.models import Q
+from django.db import models, transaction
+from scheduling.models import AppointmentSlot
 
 BUFFER_MINUTES = 5  
 
@@ -89,6 +91,37 @@ class Appointment(models.Model):
     #     return f"Appointment {self.id} - {self.status}"
 
 
+    @transaction.atomic
+    def reschedule(self, user, new_slot, reason):
+
+        if user.role not in ['PATIENT', 'DOCTOR', 'RECEPTIONIST']:
+            raise ValidationError("You do not have permission to reschedule this appointment.")
+        if user.role == 'PATIENT' and user != self.patient:
+            raise ValidationError("Patient can only reschedule their own appointment.")
+
+        if new_slot.is_booked:
+            raise ValidationError("Selected slot is already booked.")
+
+        old_slot = self.slot
+
+        self.slot = new_slot
+        self.status = self.Status.REQUESTED  
+        self.save()
+
+        old_slot.is_booked = False
+        old_slot.save()
+
+        new_slot.is_booked = True
+        new_slot.save()
+
+        AppointmentRescheduleLog.objects.create(
+            appointment=self,
+            old_slot=old_slot,
+            new_slot=new_slot,
+            changed_by=user,
+            reason=reason,
+            timestamp=timezone.now()
+        )
   
 
 # Create your models here.
@@ -156,3 +189,38 @@ class Appointment(models.Model):
 
         self.status = self.Status.COMPLETED
         self.save()
+
+
+
+class AppointmentRescheduleLog(models.Model):
+    appointment = models.ForeignKey(
+        Appointment,
+        on_delete=models.CASCADE,
+        related_name="reschedule_logs"
+    )
+    old_slot = models.ForeignKey(
+        AppointmentSlot, 
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="old_slot_logs"
+    )
+    new_slot = models.ForeignKey(
+        AppointmentSlot,  
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="new_slot_logs"
+    )
+    changed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    reason = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        user = self.changed_by.username if self.changed_by else "Unknown"
+        return f"Appointment {self.appointment.id} rescheduled by {user} on {self.timestamp.strftime('%Y-%m-%d %H:%M')}"

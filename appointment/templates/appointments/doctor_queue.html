@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Queue - Today</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            text-align: center;
+            margin-top: 30px;
+            color: #333;
+        }
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e0f7e9;
+        }
+        .waiting-time {
+            font-weight: bold;
+            color: #ff5722;
+        }
+        .not-checked-in {
+            color: #999;
+            font-style: italic;
+        }
+        @media (max-width: 768px) {
+            table {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h2>Today's Queue</h2>
+<table border="1" style="width:80%; margin:auto;">
+  <tr>
+    <th>Patient</th>
+    <th>Check-In Time</th>
+    <th>Waiting Time</th>
+  </tr>
+  {% for appt in queue %}
+  <tr>
+    <td>{{ appt.patient.username }}</td>
+    <td>{{ appt.check_in_time|time:"H:i" }}</td>
+    <td>
+      {% if appt.check_in_time %}
+        {{ appt.check_in_time|timesince:now }} waiting
+      {% else %}
+        Not checked in
+      {% endif %}
+    </td>
+  </tr>
+  {% empty %}
+  <tr>
+    <td colspan="3">No patients checked in yet.</td>
+  </tr>
+  {% endfor %}
+</table>
+
+</body>
+</html>

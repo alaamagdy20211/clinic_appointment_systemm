@@ -1,28 +1,29 @@
 {% extends 'users/admin_base.html' %}
 
 {% block admin_content %}
-    <h1 class="text-3xl font-bold mb-6">Dashboard Overview</h1>
-    <div class="grid grid-cols-2 gap-4">
-        <div class="p-6 bg-white rounded shadow text-center">
-            <h2 class="text-xl text-gray-600">Total Doctors</h2>
-            <p class="text-4xl font-bold mt-2">{{ total_doctors }}</p>
+    <h1 class="text-3xl font-bold mb-8">Dashboard Overview</h1>
+    <div class="grid grid-cols-2 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500 text-center">
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Doctors</h2>
+            <p class="text-4xl font-bold mt-2 text-green-600">{{ total_doctors }}</p>
         </div>
-        <div class="p-6 bg-white rounded shadow text-center">
-            <h2 class="text-xl text-gray-600">Total Patients</h2>
-            <p class="text-4xl font-bold mt-2">{{ total_patients }}</p>
+        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500 text-center">
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Patients</h2>
+            <p class="text-4xl font-bold mt-2 text-blue-600">{{ total_patients }}</p>
         </div>
-        <div class="p-6 bg-white rounded shadow text-center">
-            <h2 class="text-xl text-gray-600">Total Receptionists</h2>
-            <p class="text-4xl font-bold mt-2">{{ total_receptionists }}</p>
+        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500 text-center">
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Receptionists</h2>
+            <p class="text-4xl font-bold mt-2 text-purple-600">{{ total_receptionists }}</p>
         </div>
-
-        <div class="p-6 bg-white rounded shadow text-center">
-            <h2 class="text-xl text-gray-600">Total Appointments</h2>
-            <p class="text-4xl font-bold mt-2">{{ total_appointments }}</p>
+        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500 text-center">
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Appointments</h2>
+            <p class="text-4xl font-bold mt-2 text-yellow-600">{{ total_appointments }}</p>
         </div>
-        <a href="{% url 'export_appointments_csv' %}">
-            Export Appointments CSV
-        </a>
+    </div>
+    <a href="{% url 'export_appointments_csv' %}"
+       class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded transition">
+        Export Appointments CSV
+    </a>
 
         <!-- After adding the status in (appointments) models.py -->
         <!-- <div class="p-6 bg-white rounded shadow text-center">

@@ -3,18 +3,20 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.db import transaction, IntegrityError
 from django.utils.timezone import now
+from django.utils import timezone
+from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from .forms import DoctorSelectionForm
 from .models import Appointment
 from scheduling.models import AppointmentSlot
-from django.db import models,transaction
+from django.db import models
 from django.views.generic import ListView,View
-from .models import Appointment
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render,get_object_or_404,redirect
 from django.core.exceptions import ValidationError
 from .forms import UpdateStatusForm
+from .forms import RescheduleAppointmentForm
 
 # Create your views here.@login_required
 def select_doctor(request):
@@ -114,3 +116,67 @@ class  UpdateAppointmentStatusView(View):
 
 
         return render(request, self.template_name, {'form': form, 'appointment': appointment})
+
+
+@login_required
+def reschedule_appointment(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+
+    if request.method == 'POST':
+        form = RescheduleAppointmentForm(request.POST, appointment=appointment)
+        if form.is_valid():
+            new_slot = form.cleaned_data['new_slot']
+            reason = form.cleaned_data['reason']
+
+            if appointment.status not in ["REQUESTED", "CONFIRMED"]:
+                form.add_error(None, "Cannot reschedule an appointment in this state.")
+            else:
+                try:
+                    appointment.reschedule(request.user, new_slot, reason)
+                    messages.success(request, f"Appointment rescheduled successfully to {new_slot.date} at {new_slot.start_time}.")
+                    return redirect('appointment_list')
+                except ValidationError as e:
+                    form.add_error(None, e.message)
+    else:
+        form = RescheduleAppointmentForm(appointment=appointment)
+
+    return render(request, 'appointment/reschedule.html', {'form': form, 'appointment': appointment})
+
+
+@login_required
+def receptionist_check_in(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+
+    if request.user.role != "RECEPTIONIST":
+        messages.error(request, "Only receptionist can check-in patients.")
+        return redirect("appointment_list")
+
+    try:
+        appointment.check_in(request.user)
+        messages.success(request, "Patient checked in successfully.")
+    except ValidationError as e:
+        messages.error(request, e.message)
+
+    return redirect("appointment_list")
+
+class DoctorQueueView(LoginRequiredMixin, ListView):
+    model = Appointment
+    template_name = "appointments/doctor_queue.html"
+    context_object_name = "queue"
+
+    def get_queryset(self):
+        today = timezone.localdate()
+        return (
+            Appointment.objects.filter(
+                doctor=self.request.user,
+                status='CHECKED_IN',
+                slot__date=today
+            )
+            .order_by('check_in_time')
+            .select_related('patient', 'slot')
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        return context
