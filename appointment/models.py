@@ -89,42 +89,7 @@ class Appointment(models.Model):
         choices=Status.choices,
         default=Status.REQUESTED
     )
-
-    # def __str__(self):
-    #     return f"Appointment {self.id} - {self.status}"
-
-
-    # @transaction.atomic
-    # def reschedule(self, user, new_slot, reason):
-
-    #     if user.role not in ['PATIENT', 'DOCTOR', 'RECEPTIONIST']:
-    #         raise ValidationError("You do not have permission to reschedule this appointment.")
-    #     if user.role == 'PATIENT' and user != self.patient:
-    #         raise ValidationError("Patient can only reschedule their own appointment.")
-
-    #     if new_slot.is_booked:
-    #         raise ValidationError("Selected slot is already booked.")
-
-    #     old_slot = self.slot
-
-    #     self.slot = new_slot
-    #     self.status = self.Status.REQUESTED  
-    #     self.save()
-
-    #     old_slot.is_booked = False
-    #     old_slot.save()
-
-    #     new_slot.is_booked = True
-    #     new_slot.save()
-
-    #     AppointmentRescheduleLog.objects.create(
-    #         appointment=self,
-    #         old_slot=old_slot,
-    #         new_slot=new_slot,
-    #         changed_by=user,
-    #         reason=reason,
-    #         timestamp=timezone.now()
-    #     )
+    
     @transaction.atomic
     def reschedule(self, user, new_slot, reason):
 
