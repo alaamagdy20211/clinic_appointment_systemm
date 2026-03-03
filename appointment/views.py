@@ -67,7 +67,7 @@ class AppointmentListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        print("Logged-in user:", user, user.role, user.username)  # <<-- add this
+        # print("Logged-in user:", user, user.role, user.username)  # <<-- add this
 
         if user.role == "PATIENT":
             return Appointment.objects.filter(patient=user).select_related('doctor', 'slot').order_by('-slot__date')
