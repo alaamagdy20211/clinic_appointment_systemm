@@ -224,3 +224,16 @@ class AppointmentRescheduleLog(models.Model):
     def __str__(self):
         user = self.changed_by.username if self.changed_by else "Unknown"
         return f"Appointment {self.appointment.id} rescheduled by {user} on {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+    
+class ConsultationRecord(models.Model):
+    appointment = models.OneToOneField(
+        Appointment,
+        on_delete=models.CASCADE,
+        related_name="consultation"
+    )
+    diagnosis = models.TextField()
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Consultation for Appointment {self.appointment.id}"

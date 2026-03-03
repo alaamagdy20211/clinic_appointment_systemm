@@ -7,7 +7,7 @@ from django.utils import timezone
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from .forms import DoctorSelectionForm
-from .models import Appointment
+from .models import Appointment, ConsultationRecord
 from scheduling.models import AppointmentSlot
 from django.db import models
 from django.views.generic import ListView,View
@@ -180,3 +180,61 @@ class DoctorQueueView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['now'] = timezone.now()
         return context
+    
+    
+    
+@login_required
+def create_consultation(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+
+    # Only doctor allowed
+    if request.user.role == "RECEPTIONIST":
+        messages.error(request, "Receptionist cannot access medical records.")
+        return redirect("appointment_list")
+    if request.user.role != "DOCTOR":
+        messages.error(request, "Only doctors can create consultations.")
+        return redirect("appointment_list")
+
+    # Must be completed
+    if appointment.status != Appointment.Status.CHECKED_IN:
+        messages.error(request, "Consultation can only be created for checked_in appointments.")
+        return redirect("appointment_list")
+
+    # Prevent duplicate consultation
+    if hasattr(appointment, "consultation"):
+        messages.warning(request, "Consultation already exists.")
+        return redirect("appointment_list")
+
+    if request.method == "POST":
+        diagnosis = request.POST.get("diagnosis")
+        notes = request.POST.get("notes")
+
+        ConsultationRecord.objects.create(
+            appointment=appointment,
+            diagnosis=diagnosis,
+            notes=notes
+        )
+
+        messages.success(request, "Consultation created successfully.")
+        return redirect("appointment_list")
+
+    return render(request, "appointments/create_consultation.html", {
+        "appointment": appointment
+    })
+
+@login_required
+def view_consultation(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+
+    # Only patient owner allowed
+    if request.user != appointment.patient:
+        messages.error(request, "You are not allowed to view this consultation.")
+        return redirect("appointment_list")
+
+    if not hasattr(appointment, "consultation"):
+        messages.warning(request, "No consultation available.")
+        return redirect("appointment_list")
+
+    return render(request, "appointments/view_consultation.html", {
+        "consultation": appointment.consultation
+    })

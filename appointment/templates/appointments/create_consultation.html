@@ -1,0 +1,13 @@
+<h2>Create Consultation</h2>
+
+<form method="post">
+  {% csrf_token %}
+  
+  <label>Diagnosis:</label><br>
+  <textarea name="diagnosis" required></textarea><br><br>
+
+  <label>Notes:</label><br>
+  <textarea name="notes"></textarea><br><br>
+
+  <button type="submit">Save Consultation</button>
+</form>
