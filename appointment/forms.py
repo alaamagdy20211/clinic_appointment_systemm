@@ -71,7 +71,6 @@ class DoctorSelectionForm(forms.ModelForm):
                 self.fields['slot'].queryset = AppointmentSlot.objects.filter(
                     doctor_id=doctor_id,
                     is_booked=False,
-                    # date__gte=timezone.now().date()
                 ).order_by('date', 'start_time')
             except (ValueError, TypeError):
                 self.fields['slot'].queryset = AppointmentSlot.objects.none()
@@ -91,7 +90,6 @@ class RescheduleAppointmentForm(forms.Form):
             self.fields['new_slot'].queryset = AppointmentSlot.objects.filter(
                 doctor=appointment.doctor,
                 is_booked=False,
-                # date__gte=timezone.now().date()
             ).order_by('date', 'start_time')
 
 
