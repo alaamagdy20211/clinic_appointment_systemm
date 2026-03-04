@@ -24,25 +24,6 @@ from django.views.generic import ListView, View, TemplateView
 from .forms import AppointmentRescheduleLogForm
 
 
-# def select_doctor(request):
-#     form = DoctorSelectionForm(request.POST or None)
-
-#     if request.method == 'POST' and form.is_valid():
-#         appointment = form.save(commit=False)
-#         appointment.patient = request.user
-
-#         try:
-#             with transaction.atomic():  
-#                 appointment.clean()
-#                 appointment.save()
-#                 appointment.slot.is_booked = True
-#                 appointment.slot.save()
-#         except IntegrityError as e:
-#             form.add_error(None, str(e))
-#         else:
-#             return redirect('appointment_success')
-
-#     return render(request, 'appointment/select_doctor.html', {'form': form})
 class SelectDoctorView(LoginRequiredMixin, View):
     template_name = "appointment/select_doctor.html"
 
@@ -70,23 +51,7 @@ class SelectDoctorView(LoginRequiredMixin, View):
 
         return render(request, self.template_name, {"form": form})
 
-# def load_slots(request):
-#     doctor_id = request.GET.get('doctor')
-#     slots_data = []
 
-#     if doctor_id:
-#         slots = AppointmentSlot.objects.filter(
-#             doctor_id=doctor_id,
-#             is_booked=False,
-#             date__gte=now().date()
-#         ).order_by('date', 'start_time')
-
-#         slots_data = [
-#             {"id": slot.id, "text": f"{slot.date} | {slot.start_time} - {slot.end_time}"}
-#             for slot in slots
-#         ]
-
-#     return JsonResponse(slots_data, safe=False)
 
 class LoadSlotsView(LoginRequiredMixin, View):
 
@@ -175,29 +140,6 @@ class  UpdateAppointmentStatusView(View):
         return render(request, self.template_name, {'form': form, 'appointment': appointment})
 
 
-# @login_required
-# def reschedule_appointment(request, pk):
-#     appointment = get_object_or_404(Appointment, pk=pk)
-
-#     if request.method == 'POST':
-#         form = RescheduleAppointmentForm(request.POST, appointment=appointment)
-#         if form.is_valid():
-#             new_slot = form.cleaned_data['new_slot']
-#             reason = form.cleaned_data['reason']
-
-#             if appointment.status not in ["REQUESTED", "CONFIRMED"]:
-#                 form.add_error(None, "Cannot reschedule an appointment in this state.")
-#             else:
-#                 try:
-#                     appointment.reschedule(request.user, new_slot, reason)
-#                     messages.success(request, f"Appointment rescheduled successfully to {new_slot.date} at {new_slot.start_time}.")
-#                     return redirect('appointment_list')
-#                 except ValidationError as e:
-#                     form.add_error(None, e.message)
-#     else:
-#         form = RescheduleAppointmentForm(appointment=appointment)
-
-#     return render(request, 'appointment/reschedule.html', {'form': form, 'appointment': appointment})
 
 
 class RescheduleAppointmentView(LoginRequiredMixin, View):
@@ -236,22 +178,7 @@ class RescheduleAppointmentView(LoginRequiredMixin, View):
             "form": form,
             "appointment": appointment
         })
-    
-# @login_required
-# def receptionist_check_in(request, pk):
-#     appointment = get_object_or_404(Appointment, pk=pk)
 
-#     if request.user.role != "RECEPTIONIST":
-#         messages.error(request, "Only receptionist can check-in patients.")
-#         return redirect("appointment_list")
-
-#     try:
-#         appointment.check_in(request.user)
-#         messages.success(request, "Patient checked in successfully.")
-#     except ValidationError as e:
-#         messages.error(request, e.message)
-
-#     return redirect("appointment_list")
 
 
 class ReceptionistCheckInView(LoginRequiredMixin, View):
@@ -296,44 +223,6 @@ class DoctorQueueView(LoginRequiredMixin, ListView):
     
     
     
-# @login_required
-# def create_consultation(request, pk):
-#     appointment = get_object_or_404(Appointment, pk=pk)
-
-#     # Only doctor allowed
-#     if request.user.role == "RECEPTIONIST":
-#         messages.error(request, "Receptionist cannot access medical records.")
-#         return redirect("appointment_list")
-#     if request.user.role != "DOCTOR":
-#         messages.error(request, "Only doctors can create consultations.")
-#         return redirect("appointment_list")
-
-#     # Must be completed
-#     if appointment.status != Appointment.Status.CHECKED_IN:
-#         messages.error(request, "Consultation can only be created for checked_in appointments.")
-#         return redirect("appointment_list")
-
-#     # Prevent duplicate consultation
-#     if hasattr(appointment, "consultation"):
-#         messages.warning(request, "Consultation already exists.")
-#         return redirect("appointment_list")
-
-#     if request.method == "POST":
-#         diagnosis = request.POST.get("diagnosis")
-#         notes = request.POST.get("notes")
-
-#         ConsultationRecord.objects.create(
-#             appointment=appointment,
-#             diagnosis=diagnosis,
-#             notes=notes
-#         )
-
-#         messages.success(request, "Consultation created successfully.")
-#         return redirect("appointment_list")
-
-#     return render(request, "appointments/create_consultation.html", {
-#         "appointment": appointment
-#     })
 
 
 class CreateConsultationView(LoginRequiredMixin, View):
@@ -375,22 +264,6 @@ class CreateConsultationView(LoginRequiredMixin, View):
         messages.success(request, "Consultation created successfully.")
         return redirect("appointment_list")
     
-# @login_required
-# def view_consultation(request, pk):
-#     appointment = get_object_or_404(Appointment, pk=pk)
-
-#     # Only patient owner allowed
-#     if request.user != appointment.patient:
-#         messages.error(request, "You are not allowed to view this consultation.")
-#         return redirect("appointment_list")
-
-#     if not hasattr(appointment, "consultation"):
-#         messages.warning(request, "No consultation available.")
-#         return redirect("appointment_list")
-
-#     return render(request, "appointments/view_consultation.html", {
-#         "consultation": appointment.consultation
-#     })
 
 
 class ViewConsultationView(LoginRequiredMixin, View):
@@ -412,15 +285,6 @@ class ViewConsultationView(LoginRequiredMixin, View):
         })
 
 
-# def reschedule_log_all(request):
-#     if request.user.role != "RECEPTIONIST":
-#         return HttpResponseForbidden("You are not allowed to view this page.")
-
-#     logs = AppointmentRescheduleLog.objects.select_related(
-#         'appointment', 'old_slot', 'new_slot', 'changed_by'
-#     ).order_by('-timestamp')
-
-#     return render(request, "appointment/reschedule_log_all.html", {"logs": logs})
 
 class RescheduleLogAllView(LoginRequiredMixin, ListView):
     model = AppointmentRescheduleLog
