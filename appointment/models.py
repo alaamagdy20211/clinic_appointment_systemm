@@ -239,8 +239,7 @@ class AppointmentRescheduleLog(models.Model):
         blank=True
     )
     reason = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-
+    timestamp = models.DateTimeField(auto_now=True)  
     def __str__(self):
         user = self.changed_by.username if self.changed_by else "Unknown"
         return f"Appointment {self.appointment.id} rescheduled by {user} on {self.timestamp.strftime('%Y-%m-%d %H:%M')}"

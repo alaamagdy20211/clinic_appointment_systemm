@@ -5,6 +5,7 @@ from scheduling.models import AppointmentSlot
 from datetime import timedelta, datetime , timezone
 from django import forms
 from .models import Appointment, AppointmentSlot
+from .models import AppointmentRescheduleLog
 
 class UpdateStatusForm(forms.Form):
     status = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
@@ -92,3 +93,25 @@ class RescheduleAppointmentForm(forms.Form):
                 is_booked=False,
                 # date__gte=timezone.now().date()
             ).order_by('date', 'start_time')
+
+
+
+
+class AppointmentRescheduleLogForm(forms.ModelForm):
+    class Meta:
+        model = AppointmentRescheduleLog
+        fields = [
+            "appointment",
+            "old_slot",
+            "new_slot",
+            "changed_by",
+            "reason",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+        if not user or user.role != "RECEPTIONIST":
+            for field in self.fields:
+                self.fields[field].disabled = True

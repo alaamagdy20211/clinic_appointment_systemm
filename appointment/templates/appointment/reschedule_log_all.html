@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Reschedule Logs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans p-6">
+
+    <h1 class="text-2xl font-bold mb-4">All Reschedule Logs</h1>
+
+    {% if logs %}
+    <table class="w-full text-left border rounded-lg overflow-hidden shadow">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="px-4 py-2">Appointment</th>
+                <th class="px-4 py-2">Old Slot</th>
+                <th class="px-4 py-2">New Slot</th>
+                <th class="px-4 py-2">Changed By</th>
+                <th class="px-4 py-2">Reason</th>
+                <th class="px-4 py-2">Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr class="border-t hover:bg-gray-50">
+                <td class="px-4 py-2">{{ log.appointment.id }}</td>
+                <td class="px-4 py-2">{{ log.old_slot.start_time|default:"-" }} – {{ log.old_slot.end_time|default:"-" }}</td>
+                <td class="px-4 py-2">{{ log.new_slot.start_time|default:"-" }} – {{ log.new_slot.end_time|default:"-" }}</td>
+                <td class="px-4 py-2">{{ log.changed_by.get_full_name|default:log.changed_by.username }}</td>
+                <td class="px-4 py-2">{{ log.reason }}</td>
+                <td class="px-4 py-2">{{ log.timestamp|date:"M d, Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-gray-500 mt-4">No reschedule logs available.</p>
+    {% endif %}
+
+</body>
+</html>

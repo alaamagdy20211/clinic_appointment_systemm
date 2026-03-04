@@ -13,5 +13,6 @@ urlpatterns = [
     path('doctor/queue/', DoctorQueueView.as_view(), name='doctor_queue'),
     path("consultation/create/<int:pk>/", views.create_consultation, name="create_consultation"),
     path("consultation/view/<int:pk>/", views.view_consultation, name="view_consultation"),
+    path("reschedule-logs/",views.reschedule_log_all,name="reschedule_log_all")
 ]
 

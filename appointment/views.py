@@ -17,8 +17,11 @@ from django.shortcuts import render,get_object_or_404,redirect
 from django.core.exceptions import ValidationError
 from .forms import UpdateStatusForm
 from .forms import RescheduleAppointmentForm
+from django.http import HttpResponseForbidden
+from .models import AppointmentRescheduleLog
+from .forms import AppointmentRescheduleLogForm
 
-# Create your views here.@login_required
+
 def select_doctor(request):
     form = DoctorSelectionForm(request.POST or None)
 
@@ -238,3 +241,15 @@ def view_consultation(request, pk):
     return render(request, "appointments/view_consultation.html", {
         "consultation": appointment.consultation
     })
+
+
+
+def reschedule_log_all(request):
+    if request.user.role != "RECEPTIONIST":
+        return HttpResponseForbidden("You are not allowed to view this page.")
+
+    logs = AppointmentRescheduleLog.objects.select_related(
+        'appointment', 'old_slot', 'new_slot', 'changed_by'
+    ).order_by('-timestamp')
+
+    return render(request, "appointment/reschedule_log_all.html", {"logs": logs})
