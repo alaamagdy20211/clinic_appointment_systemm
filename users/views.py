@@ -177,10 +177,10 @@ class DoctorDashboardView(DoctorRequiredMixin, TemplateView):
         context['today_appointments'] = today_appts
         context['today_count'] = today_appts.count()
         context['total_count'] = all_appts.count()
-        context['pending_count'] = today_appts.filter(status=Appointment.Status.REQUESTED).count()
-        context['confirmed_count'] = today_appts.filter(status=Appointment.Status.CONFIRMED).count()
-        context['checked_in_count'] = today_appts.filter(status=Appointment.Status.CHECKED_IN).count()
-        context['completed_count'] = today_appts.filter(status=Appointment.Status.COMPLETED).count()
+        context['pending_count'] = all_appts.filter(status=Appointment.Status.REQUESTED).count()
+        context['confirmed_count'] = all_appts.filter(status=Appointment.Status.CONFIRMED).count()
+        context['checked_in_count'] = all_appts.filter(status=Appointment.Status.CHECKED_IN).count()
+        context['completed_count'] = all_appts.filter(status=Appointment.Status.COMPLETED).count()
         context['today'] = today
         return context
 
