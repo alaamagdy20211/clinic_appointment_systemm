@@ -20,6 +20,7 @@ from .forms import RescheduleAppointmentForm
 from django.http import HttpResponseForbidden
 from .models import AppointmentRescheduleLog
 from django.views.generic import ListView, View, TemplateView
+from django.db.models import Q
 
 from .forms import AppointmentRescheduleLogForm
 
@@ -91,15 +92,53 @@ class AppointmentListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        # print("Logged-in user:", user, user.role, user.username)  # <<-- add this
+        qs = Appointment.objects.select_related(
+            'patient', 'doctor', 'slot').order_by('-slot__date')
 
+        # Role filtering
         if user.role == "PATIENT":
-            return Appointment.objects.filter(patient=user).select_related('doctor', 'slot').order_by('-slot__date')
+            qs = qs.filter(patient=user)
 
-        if user.role == "DOCTOR":
-            return Appointment.objects.filter(doctor=user).select_related('patient', 'slot').order_by('-slot__date')
+        elif user.role == "DOCTOR":
+            qs = qs.filter(doctor=user)
 
-        return Appointment.objects.all().select_related('patient', 'doctor', 'slot').order_by('-slot__date')
+        # Staff filtering (Admin / Receptionist)
+        if user.role in ["ADMIN", "RECEPTIONIST"]:
+
+            # Filter by status
+            status = self.request.GET.get("status")
+            if status:
+                qs = qs.filter(status=status)
+
+            # Filter by doctor
+            doctor = self.request.GET.get("doctor")
+            if doctor:
+                qs = qs.filter(doctor__id=doctor)
+
+            # Filter by patient name
+            patient = self.request.GET.get("patient")
+            if patient:
+                qs = qs.filter(patient__username__icontains=patient)
+
+            # Date range filter
+            start_date = self.request.GET.get("start_date")
+            end_date = self.request.GET.get("end_date")
+
+            if start_date:
+                qs = qs.filter(slot__date__gte=start_date)
+
+            if end_date:
+                qs = qs.filter(slot__date__lte=end_date)
+
+            # Search by ID or Patient name
+            search = self.request.GET.get("q")
+            if search:
+                qs = qs.filter(
+                    Q(id__icontains=search) |
+                    Q(patient__username__icontains=search)
+                )
+
+        return qs
 
 class  UpdateAppointmentStatusView(View):
     template_name = "appointments/update_status.html"
