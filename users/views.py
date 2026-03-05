@@ -78,9 +78,26 @@ class AdminDashboardHomeView(AdminRequiredMixin, TemplateView):
          # Appointment stats
         context['total_appointments'] = Appointment.objects.count()
         ###After adding the status in (appointments) models.py
-        # context['completed_appointments'] = Appointment.objects.filter(status='COMPLETED').count()
-        # context['cancelled_appointments'] = Appointment.objects.filter(status='CANCELLED').count()
-        # context['no_show_appointments'] = Appointment.objects.filter(status='NO_SHOW').count()
+        context['total_appointments'] = Appointment.objects.count()
+        context['requested_appointments'] = Appointment.objects.filter(
+            status=Appointment.Status.REQUESTED
+        ).count()
+
+        context['confirmed_appointments'] = Appointment.objects.filter(
+            status=Appointment.Status.CONFIRMED
+        ).count()
+
+        context['checked_in_appointments'] = Appointment.objects.filter(
+            status=Appointment.Status.CHECKED_IN
+        ).count()
+
+        context['completed_appointments'] = Appointment.objects.filter(
+            status=Appointment.Status.COMPLETED
+        ).count()
+
+        context['cancelled_appointments'] = Appointment.objects.filter(
+            status=Appointment.Status.CANCELLED
+        ).count()
 
         return context
     

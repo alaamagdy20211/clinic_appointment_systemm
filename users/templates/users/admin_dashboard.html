@@ -25,17 +25,39 @@
         Export Appointments CSV
     </a>
 
-        <!-- After adding the status in (appointments) models.py -->
-        <!-- <div class="p-6 bg-white rounded shadow text-center">
-            <h2 class="text-xl text-gray-600">Completed Appointments</h2>
-            <p class="text-4xl font-bold mt-2">{{ completed_appointments }}</p>
-        </div>
-        <div class="p-6 bg-white rounded shadow text-center">
-            <h2 class="text-xl text-gray-600">Cancelled Appointments</h2>
-            <p class="text-4xl font-bold mt-2">{{ cancelled_appointments }}</p>
-        </div>
-        <div class="p-6 bg-white rounded shadow text-center">
-            <h2 class="text-xl text-gray-600">Number Of Show Appointments</h2>
-            <p class="text-4xl font-bold mt-2">{{ no_show_appointments }}</p>
-        </div> -->
+    <h2 class="text-2xl font-bold mb-4">Appointment Status Overview</h2>
+
+<div class="grid grid-cols-3 gap-6 mb-8">
+
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-gray-500 text-center">
+        <h2 class="text-sm font-medium text-gray-500 uppercase">Requested</h2>
+        <p class="text-3xl font-bold mt-2">{{ requested_appointments }}</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500 text-center">
+        <h2 class="text-sm font-medium text-gray-500 uppercase">Confirmed</h2>
+        <p class="text-3xl font-bold mt-2">{{ confirmed_appointments }}</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-indigo-500 text-center">
+        <h2 class="text-sm font-medium text-gray-500 uppercase">Checked In</h2>
+        <p class="text-3xl font-bold mt-2">{{ checked_in_appointments }}</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500 text-center">
+        <h2 class="text-sm font-medium text-gray-500 uppercase">Completed</h2>
+        <p class="text-3xl font-bold mt-2 text-green-600">{{ completed_appointments }}</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500 text-center">
+        <h2 class="text-sm font-medium text-gray-500 uppercase">Cancelled</h2>
+        <p class="text-3xl font-bold mt-2 text-red-600">{{ cancelled_appointments }}</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500 text-center">
+        <h2 class="text-sm font-medium text-gray-500 uppercase">No Show</h2>
+        <p class="text-3xl font-bold mt-2 text-yellow-600">{{ no_show_appointments }}</p>
+    </div>
+
+</div>
 {% endblock %}
