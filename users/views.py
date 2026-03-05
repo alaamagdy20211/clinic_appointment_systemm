@@ -172,7 +172,7 @@ class DoctorDashboardView(DoctorRequiredMixin, TemplateView):
         doctor = self.request.user
         today = date.today()
 
-        ScheduleException.objects.filter(date__lt=today).delete()
+        # ScheduleException.objects.filter(date__lt=today).delete()
 
         all_appts = Appointment.objects.filter(doctor=doctor).select_related('patient', 'slot')
         today_appts = all_appts.filter(slot__date=today).order_by('slot__start_time')
@@ -190,7 +190,9 @@ class DoctorDashboardView(DoctorRequiredMixin, TemplateView):
                 'exceptions': [e for e in exceptions if e.date.weekday() == i],
             })
 
-        context['weekly'] = weekly  
+        context['weekly'] = weekly
+        context['exceptions'] = exceptions
+
         context['today_appointments'] = today_appts
         context['today_count'] = today_appts.count()
         context['total_count'] = all_appts.count()

@@ -21,9 +21,6 @@
             <h1 class="text-3xl font-bold">My Dashboard</h1>
             <p class="text-gray-500 mt-1">Today — {{ today }}</p>
         </div>
-
-        {# render any django messages (errors/success) – useful if later you choose to
-           surface validation problems via messages instead of staying on the form page #}
         {% if messages %}
             <div class="mb-6 space-y-2">
                 {% for message in messages %}

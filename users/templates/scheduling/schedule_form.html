@@ -39,8 +39,7 @@
             <form method="post" class="space-y-5">
                 {% csrf_token %}
 
-                {# show errors coming from model.clean() or form.clean(), such as
-                   start time being after end time #}
+                {# show errors coming from model.clean() or form.clean(), such as start time being after end time #}
                 {% if form.non_field_errors %}
                     <div class="mb-4">
                         {% for error in form.non_field_errors %}

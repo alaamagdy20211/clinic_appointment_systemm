@@ -6,7 +6,7 @@ from .models import DoctorSchedule, AppointmentSlot, ScheduleException
 from datetime import date, timedelta
 from .forms import ScheduleForm, ScheduleExceptionForm
 from .services import generate_slots_for_day, CancelSlotsForException, DeleteOverdueExeptions
-
+from django.core.exceptions import ValidationError
 class DoctorDashboardView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = DoctorSchedule
     template_name = 'scheduling/doctor_dashboard.html'
@@ -47,8 +47,13 @@ class ScheduleCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.doctor = self.request.user
+        try:
+            generate_slots_for_day(form.instance)
+        except ValidationError as exc:
+            form.add_error(None, exc.message if hasattr(exc, 'message') else str(exc))
+            return self.form_invalid(form)
+
         response = super().form_valid(form)
-        generate_slots_for_day(form.instance)
         return response
 
     def get_form(self, form_class=None):
@@ -68,12 +73,16 @@ class ScheduleExceptionCreateView(LoginRequiredMixin, UserPassesTestMixin, Creat
 
     def form_valid(self, form):
         form.instance.doctor = self.request.user
-        response = super().form_valid(form)
         if form.instance.is_working_day:
-            generate_slots_for_day(form.instance)
-            pass
+            try:
+                generate_slots_for_day(form.instance)
+            except ValidationError as exc:
+                form.add_error(None, exc.message if hasattr(exc, 'message') else str(exc))
+                return self.form_invalid(form)
         else:
             CancelSlotsForException(form.instance)
+
+        response = super().form_valid(form)
         return response
 
     def test_func(self):

@@ -3,6 +3,7 @@ from .models import AppointmentSlot, ScheduleException, DoctorSchedule
 
 from datetime import datetime, timedelta, date
 from .models import AppointmentSlot, ScheduleException, DoctorSchedule
+from django.core.exceptions import ValidationError
 
 def generate_slots_for_day(schedule_instance):
     if isinstance(schedule_instance, DoctorSchedule):
@@ -19,8 +20,21 @@ def generate_slots_for_day(schedule_instance):
     ).exists()
 
     if day_off_exists:
-        print(f"Skipping slot generation: {current_date} is marked as a day off.")
-        return
+        raise ValidationError(f"Cannot generate slots for {current_date} as it is marked as a day off.")
+    
+    existing_slots = AppointmentSlot.objects.filter(
+        doctor=schedule_instance.doctor,
+        date=current_date,
+        start_time__lt=schedule_instance.end_time,  
+        end_time__gt=schedule_instance.start_time    
+    )
+
+    if existing_slots.exists():
+        raise ValidationError(
+            f"Slots already exist overlapping this time range on {current_date}. "
+            f"Please choose a different time."
+        )
+
     start_dt = datetime.combine(current_date, schedule_instance.start_time)
     end_dt = datetime.combine(current_date, schedule_instance.end_time)
     
