@@ -98,6 +98,9 @@ class AdminDashboardHomeView(AdminRequiredMixin, TemplateView):
         context['cancelled_appointments'] = Appointment.objects.filter(
             status=Appointment.Status.CANCELLED
         ).count()
+        context['no_show_appointments'] = Appointment.objects.filter(
+            status=Appointment.Status.NO_SHOW
+        ).count()
 
         return context
     
@@ -247,3 +250,18 @@ class ExportAppointmentsCSV(View):
             ])
 
         return response
+
+# delete accounts by admin
+class DeleteUserView(AdminRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        user_id = kwargs.get('user_id')
+        try:
+            user = User.objects.get(id=user_id)
+            if user.role == User.Role.ADMIN:
+                messages.error(request, "Cannot delete admin accounts.")
+                return redirect('admin_user_list')
+            user.delete()
+            messages.success(request, "User deleted successfully.")
+        except User.DoesNotExist:
+            messages.error(request, "User not found.")
+        return redirect('admin_user_list')

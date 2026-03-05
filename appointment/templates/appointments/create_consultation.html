@@ -1,13 +1,70 @@
-<h2>Create Consultation</h2>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Consultation – HealthNest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
 
-<form method="post">
-  {% csrf_token %}
-  
-  <label>Diagnosis:</label><br>
-  <textarea name="diagnosis" required></textarea><br><br>
+    <nav class="text-white px-6 py-3 flex justify-between items-center shadow-lg" style="background-color:#0c2340; border-bottom:1px solid #1a3a5c;">
+        <div class="flex items-center gap-3">
+            <img src="{% static 'images/logo.png' %}" alt="HealthNest" class="h-9 w-9 rounded-full object-cover">
+            <span class="text-xl font-bold tracking-wide">HealthNest</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-sm text-blue-200 font-medium">Dr. {{ request.user.get_full_name|default:request.user.username }}</span>
+            <a href="{% url 'doctor_dashboard' %}" class="text-sm text-blue-100 hover:text-white border border-blue-400 hover:border-white px-3 py-1.5 rounded-lg transition">Dashboard</a>
+            <a href="{% url 'logout' %}" class="text-sm font-medium bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition">Sign Out</a>
+        </div>
+    </nav>
 
-  <label>Notes:</label><br>
-  <textarea name="notes"></textarea><br><br>
+    <main class="max-w-2xl mx-auto mt-10 p-6">
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">Create Consultation</h1>
+                <p class="text-gray-500 mt-1">Patient: {{ appointment.patient.get_full_name|default:appointment.patient.username }}</p>
+            </div>
+            <a href="{% url 'appointment_list' %}" class="text-sm text-blue-600 hover:underline">&larr; Back</a>
+        </div>
 
-  <button type="submit">Save Consultation</button>
-</form>
+        {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for message in messages %}
+                    <div class="px-4 py-3 rounded border
+                        {% if message.tags == 'success' %}bg-green-50 border-green-400 text-green-800
+                        {% elif message.tags == 'error' %}bg-red-50 border-red-400 text-red-800
+                        {% else %}bg-blue-50 border-blue-400 text-blue-800{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-md p-8 border-l-4 border-green-500">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-5">
+                    <label for="diagnosis" class="block text-sm font-medium text-gray-700 mb-1">Diagnosis</label>
+                    <textarea name="diagnosis" id="diagnosis" rows="4" required
+                              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                </div>
+                <div class="mb-5">
+                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <textarea name="notes" id="notes" rows="4"
+                              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                </div>
+                <div class="flex items-center gap-3 pt-2">
+                    <button type="submit"
+                            class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded transition">
+                        Save Consultation
+                    </button>
+                    <a href="{% url 'appointment_list' %}" class="text-gray-500 hover:text-gray-700 text-sm">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>

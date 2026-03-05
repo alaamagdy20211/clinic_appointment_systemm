@@ -1,17 +1,21 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Appointment Booked</title>
+    <title>Appointment Booked – HealthNest</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
 
-    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow">
-        <div class="text-xl font-bold">Clinic Portal</div>
-        <div class="space-x-4 flex items-center">
-            <a href="{% url 'patient_dashboard' %}" class="hover:underline">Dashboard</a>
-            <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded">Logout</a>
+    <nav class="text-white px-6 py-3 flex justify-between items-center shadow-lg" style="background-color:#0c2340; border-bottom:1px solid #1a3a5c;">
+        <div class="flex items-center gap-3">
+            <img src="{% static 'images/logo.png' %}" alt="HealthNest" class="h-9 w-9 rounded-full object-cover">
+            <span class="text-xl font-bold tracking-wide">HealthNest</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'patient_dashboard' %}" class="text-sm text-blue-100 hover:text-white border border-blue-400 hover:border-white px-3 py-1.5 rounded-lg transition">Dashboard</a>
+            <a href="{% url 'logout' %}" class="text-sm font-medium bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition">Sign Out</a>
         </div>
     </nav>
 
