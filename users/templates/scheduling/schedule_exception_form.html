@@ -38,6 +38,14 @@
         <div class="bg-white rounded-lg shadow-md p-8">
             <form method="post" class="space-y-5">
                 {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="mb-4">
+                        {% for error in form.non_field_errors %}
+                            <p class="text-red-500 text-sm">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
                 {% for field in form %}
                     {% if field.field.widget.input_type == 'checkbox' %}
                         <div class="flex items-center gap-3">

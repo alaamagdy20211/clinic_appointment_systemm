@@ -1,5 +1,6 @@
 from django import forms
 from .models import DoctorSchedule, ScheduleException
+from django.utils import timezone
 
 INPUT_CLASS = "w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 SELECT_CLASS = "w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
@@ -27,3 +28,8 @@ class ScheduleExceptionForm(forms.ModelForm):
             'end_time': forms.TimeInput(attrs={'type': 'time', 'class': INPUT_CLASS}),
             'slot_duration': forms.Select(attrs={'class': SELECT_CLASS}),
         }
+    def clean_date(self):
+        date = self.cleaned_data['date']
+        if date and date < timezone.now().date():
+            raise forms.ValidationError("Exception date cannot be in the past.")
+        return date

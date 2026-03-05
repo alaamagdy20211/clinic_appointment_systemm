@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+from django.core.exceptions import ValidationError
 
 class DoctorSchedule(models.Model):
     DAYS = [
@@ -21,6 +21,10 @@ class DoctorSchedule(models.Model):
 
     def __str__(self):
         return f"{self.doctor.username} - {self.get_day_of_week_display()}"
+    
+    def clean(self):
+        if self.start_time >= self.end_time:
+            raise ValidationError("Start time must be before end time.")
 
 class ScheduleException(models.Model):
     doctor = models.ForeignKey(
@@ -38,6 +42,25 @@ class ScheduleException(models.Model):
 
     def __str__(self):
         return f"{self.doctor.username} - {self.date}"
+
+    def clean(self):
+        start_time = self.start_time
+        end_time = self.end_time
+        slot_duration = self.slot_duration
+        if self.is_working_day:
+            if start_time and end_time:
+                if start_time >= end_time:
+                    raise ValidationError("Start time must be before end time.")
+
+                if slot_duration and (end_time.hour * 60 + end_time.minute) - (start_time.hour * 60 + start_time.minute) < slot_duration:
+                    raise ValidationError("The time range must be at least as long as the slot duration.")
+                
+            else:
+                raise ValidationError("Working day exceptions must have start and end times defined.")
+
+
+
+
 
 class AppointmentSlot(models.Model):
     doctor = models.ForeignKey(
@@ -58,3 +81,10 @@ class AppointmentSlot(models.Model):
 
     def __str__(self):
              return f"{self.date} | {self.start_time.strftime('%I:%M %p')}"
+
+    # def clean(self):
+        
+
+# def validate_time_range():
+#     if start_time >= end_time:
+#         raise ValidationError("Start time must be before end time.")
