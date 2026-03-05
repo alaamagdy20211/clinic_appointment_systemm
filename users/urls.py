@@ -14,5 +14,5 @@ urlpatterns = [
     path('admin-dashboard/users/create-receptionist/', CreateReceptionistView.as_view(), name='create_receptionist'),
     path('doctor/dashboard/', DoctorDashboardView.as_view(), name='doctor_dashboard'),
     path('receptionist/dashboard/', ReceptionistDashboardView.as_view(), name='receptionist_dashboard'),
-    path('admin/export-csv/', ExportAppointmentsCSV.as_view(), name='export_appointments_csv'),
+    path('export-csv/', ExportAppointmentsCSV.as_view(), name='export_appointments_csv'),
 ]
