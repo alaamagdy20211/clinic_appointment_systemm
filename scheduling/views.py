@@ -48,16 +48,20 @@ class ScheduleCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def form_valid(self, form):
         form.instance.doctor = self.request.user
         response = super().form_valid(form)
-        # generate_slots_for_day(form.instance) todo
         generate_slots_for_day(form.instance)
         return response
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.instance.doctor = self.request.user 
+        return form
 
     def test_func(self):
         print(f"User role: '{self.request.user.role}'")
         return self.request.user.role == 'DOCTOR'
 
 class ScheduleExceptionCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
-    model = DoctorSchedule
+    model = ScheduleException
     form_class = ScheduleExceptionForm
     template_name = 'scheduling/schedule_exception_form.html'
     success_url = reverse_lazy('schedule-list')

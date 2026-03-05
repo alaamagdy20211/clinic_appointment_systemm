@@ -21,7 +21,6 @@ def generate_slots_for_day(schedule_instance):
     if day_off_exists:
         print(f"Skipping slot generation: {current_date} is marked as a day off.")
         return
-
     start_dt = datetime.combine(current_date, schedule_instance.start_time)
     end_dt = datetime.combine(current_date, schedule_instance.end_time)
     

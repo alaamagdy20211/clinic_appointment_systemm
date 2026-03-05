@@ -23,8 +23,29 @@ class DoctorSchedule(models.Model):
         return f"{self.doctor.username} - {self.get_day_of_week_display()}"
     
     def clean(self):
-        if self.start_time >= self.end_time:
-            raise ValidationError("Start time must be before end time.")
+        start_time = self.start_time
+        end_time = self.end_time
+        slot_duration = self.slot_duration
+        if start_time and end_time:
+            if start_time >= end_time:
+                raise ValidationError("Start time must be before end time.")
+
+            if slot_duration and (end_time.hour * 60 + end_time.minute) - (start_time.hour * 60 + start_time.minute) < slot_duration:
+                raise ValidationError("The time range must be at least as long as the slot duration.")
+            
+            overlapping_exist = DoctorSchedule.objects.filter(
+                doctor=self.doctor,
+                day_of_week=self.day_of_week,
+                start_time__lt=end_time,
+                end_time__gt=start_time
+            ).exclude(id=self.id).filter(
+                models.Q(start_time__lt=end_time, end_time__gt=start_time)
+            )
+            if overlapping_exist.exists():
+                raise ValidationError("This schedule overlaps with an existing schedule.")
+
+        else:
+            raise ValidationError("Working day exceptions must have start and end times defined.")
 
 class ScheduleException(models.Model):
     doctor = models.ForeignKey(
