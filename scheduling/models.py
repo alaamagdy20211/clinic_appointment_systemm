@@ -103,9 +103,3 @@ class AppointmentSlot(models.Model):
     def __str__(self):
              return f"{self.date} | {self.start_time.strftime('%I:%M %p')}"
 
-    # def clean(self):
-        
-
-# def validate_time_range():
-#     if start_time >= end_time:
-#         raise ValidationError("Start time must be before end time.")
