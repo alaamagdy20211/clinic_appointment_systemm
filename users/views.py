@@ -141,13 +141,11 @@ class HomeRedirectView(LoginRequiredMixin, View):
         if role == User.Role.ADMIN:
             return redirect('admin_dashboard')
         elif role == User.Role.DOCTOR:
-            # Heba will build the actual doctor view later, 
-            # for now we can just route them to a placeholder or home.
+
             return redirect('doctor_dashboard') 
         elif role == User.Role.RECEPTIONIST:
             return redirect('receptionist_dashboard')
         else:
-            # Default to patient
             return redirect('patient_dashboard')
 
 class PatientDashboardView(PatientRequiredMixin, TemplateView):
@@ -228,7 +226,7 @@ class ReceptionistDashboardView(ReceptionistRequiredMixin, TemplateView):
         return context
 
 
-class ExportAppointmentsCSV(View):
+class ExportAppointmentsCSV(AdminRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         # Check if user is admin using minix (bakry)
         

@@ -1,9 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import ListView, CreateView, View
-from django.shortcuts import redirect, render
+from django.views.generic import ListView, CreateView
 from django.urls import reverse_lazy
-from .models import DoctorSchedule, AppointmentSlot, ScheduleException
-from datetime import date, timedelta
+from .models import DoctorSchedule, ScheduleException
 from .forms import ScheduleForm, ScheduleExceptionForm
 from .services import generate_slots_for_day, CancelSlotsForException, DeleteOverdueExeptions
 from django.core.exceptions import ValidationError

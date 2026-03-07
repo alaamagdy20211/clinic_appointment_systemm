@@ -4,12 +4,10 @@ from django.http import JsonResponse
 from django.db import transaction, IntegrityError
 from django.utils.timezone import now
 from django.utils import timezone
-from datetime import datetime
-from django.contrib.auth.decorators import login_required
+from users.permissions import PatientRequiredMixin
 from .forms import DoctorSelectionForm
 from .models import Appointment, ConsultationRecord
 from scheduling.models import AppointmentSlot
-from django.db import models
 from django.views.generic import ListView,View
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -22,10 +20,9 @@ from .models import AppointmentRescheduleLog
 from django.views.generic import ListView, View, TemplateView
 from django.db.models import Q
 
-from .forms import AppointmentRescheduleLogForm
 
 
-class SelectDoctorView(LoginRequiredMixin, View):
+class SelectDoctorView(PatientRequiredMixin, View):
     template_name = "appointment/select_doctor.html"
 
     def get(self, request):
