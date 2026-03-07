@@ -1,7 +1,7 @@
 # HealthNest - Clinic Appointment System
 
 <p align="center">
-  <img src="static/images/logo.png" alt="HealthNest Logo">
+  <img src="static/images/logo.png" alt="HealthNest Logo" width="180">
 </p>
 
 
@@ -84,3 +84,19 @@ psql -U your_username -d clinic_db -f sample.sql
 ```
 
 All the users passwords are set to `Test1234!` for testing purposes. Make sure to replace `your_username` with your actual PostgreSQL username and `clinic_db` with the name of your database.
+
+## How to test the project
+
+1. Run the development server:
+
+```bash
+python manage.py runserver
+```
+2. Open your web browser and navigate to `http://localhost:8000`.
+3. You can register as a new patient or log in with existing credentials (use the sample data for testing).
+4. Patients can book appointments, view their profiles, and check their appointment history.
+5. Doctors can log in to manage their schedules, view patient information, and update appointment statuses.
+6. Receptionists can log in to manage appointments and schedule queues.
+7. Admins can log in to manage users, doctors, and appointments through the admin interface.
+8. Test the functionality of the application by performing various actions such as booking appointments, updating profiles, and managing schedules.
+
