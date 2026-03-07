@@ -209,3 +209,5 @@ __marimo__/
 # add migrate files
 migrations/
 00*_*.py
+
+.vscode/
