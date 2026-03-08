@@ -11,7 +11,7 @@ class DoctorDashboardView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     
     def get_queryset(self):
-        DeleteOverdueExeptions()
+        # DeleteOverdueExeptions()
         return DoctorSchedule.objects.filter(doctor=self.request.user)
     
     def get_context_data(self, **kwargs):

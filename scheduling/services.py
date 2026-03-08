@@ -5,18 +5,18 @@ from datetime import datetime, timedelta, date
 from .models import AppointmentSlot, ScheduleException, DoctorSchedule
 from django.core.exceptions import ValidationError
 
-def generate_slots_for_day(schedule_instance):
+def generate_slots_for_day(schedule_instance, target_date=None):
     if isinstance(schedule_instance, DoctorSchedule):
-        today = date.today()
-        target_weekday = schedule_instance.day_of_week 
-        days_ahead = (target_weekday - today.weekday()) % 7
-        if days_ahead == 0:
-            days_ahead = 0  
-        dates_to_generate = [
-            today + timedelta(days=days_ahead),        
-            today + timedelta(days=days_ahead + 7),    
-        ]
-
+        if target_date:
+            dates_to_generate = [target_date] 
+        else:
+            today = date.today()
+            target_weekday = schedule_instance.day_of_week
+            days_ahead = (target_weekday - today.weekday()) % 7
+            dates_to_generate = [
+                today + timedelta(days=days_ahead),
+                today + timedelta(days=days_ahead + 7),
+            ]
     elif isinstance(schedule_instance, ScheduleException):
         dates_to_generate = [schedule_instance.date]
     else:
