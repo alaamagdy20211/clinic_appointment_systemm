@@ -85,9 +85,3 @@ def CancelSlotsForException(exception_instance):
     ).delete()
     print(f"Deleted {deleted_count} unbooked slots for exception on {exception_instance.date}")
     return 0
-
-def DeleteOverdueExeptions():
-    today = date.today()
-    deleted_count, _ = ScheduleException.objects.filter(date__lt=today).delete()
-    print(f"Deleted {deleted_count} overdue exceptions")
-    return 0

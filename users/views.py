@@ -14,7 +14,6 @@ from .models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from appointment.models import Appointment
 from scheduling.models import ScheduleException, DoctorSchedule
-from scheduling.services import DeleteOverdueExeptions
 from django.utils import timezone
 import csv
 from django.http import HttpResponse

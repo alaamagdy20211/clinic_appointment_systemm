@@ -3,7 +3,7 @@ from django.views.generic import ListView, CreateView
 from django.urls import reverse_lazy
 from .models import DoctorSchedule, ScheduleException
 from .forms import ScheduleForm, ScheduleExceptionForm
-from .services import generate_slots_for_day, CancelSlotsForException, DeleteOverdueExeptions
+from .services import generate_slots_for_day, CancelSlotsForException
 from django.core.exceptions import ValidationError
 class DoctorDashboardView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = DoctorSchedule
@@ -11,7 +11,6 @@ class DoctorDashboardView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     
     def get_queryset(self):
-        # DeleteOverdueExeptions()
         return DoctorSchedule.objects.filter(doctor=self.request.user)
     
     def get_context_data(self, **kwargs):
