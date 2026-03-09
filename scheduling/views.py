@@ -69,7 +69,9 @@ class ScheduleExceptionCreateView(LoginRequiredMixin, UserPassesTestMixin, Creat
     success_url = reverse_lazy('schedule-list')
 
     def form_valid(self, form):
-        form.instance.doctor = self.request.user
+        if self.request.user.role == 'DOCTOR':
+            form.instance.doctor = self.request.user
+
         if form.instance.is_working_day:
             try:
                 generate_slots_for_day(form.instance)
@@ -82,6 +84,11 @@ class ScheduleExceptionCreateView(LoginRequiredMixin, UserPassesTestMixin, Creat
         response = super().form_valid(form)
         return response
 
+    def get_success_url(self):
+        if self.request.user.role == 'RECEPTIONIST':
+            return reverse_lazy('receptionist_dashboard')
+        return reverse_lazy('schedule-list')
+
     def test_func(self):
         print(f"User role: '{self.request.user.role}'")
-        return self.request.user.role == 'DOCTOR'
+        return self.request.user.role in ['DOCTOR', 'RECEPTIONIST']

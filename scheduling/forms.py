@@ -1,6 +1,7 @@
 from django import forms
 from .models import DoctorSchedule, ScheduleException
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 INPUT_CLASS = "w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 SELECT_CLASS = "w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
@@ -17,9 +18,16 @@ class ScheduleForm(forms.ModelForm):
         }
 
 class ScheduleExceptionForm(forms.ModelForm):
+    doctor = forms.ModelChoiceField(
+        queryset=get_user_model().objects.filter(role="DOCTOR"),
+        widget=forms.Select(attrs={'class': SELECT_CLASS}),
+        required=True,
+        label="Doctor"
+    )
+
     class Meta:
         model = ScheduleException
-        fields = ['date', 'reason', 'is_working_day', 'start_time', 'end_time', 'slot_duration']
+        fields = ['doctor', 'date', 'reason', 'is_working_day', 'start_time', 'end_time', 'slot_duration']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': INPUT_CLASS}),
             'reason': forms.TextInput(attrs={'class': INPUT_CLASS}),
@@ -28,6 +36,7 @@ class ScheduleExceptionForm(forms.ModelForm):
             'end_time': forms.TimeInput(attrs={'type': 'time', 'class': INPUT_CLASS}),
             'slot_duration': forms.Select(attrs={'class': SELECT_CLASS}),
         }
+
     def clean_date(self):
         date = self.cleaned_data['date']
         if date and date < timezone.now().date():

@@ -14,8 +14,13 @@
             <span class="text-xl font-bold tracking-wide">HealthNest</span>
         </div>
         <div class="flex items-center gap-3">
-            <span class="text-sm text-blue-200 font-medium">Dr. {{ user.get_full_name|default:user.username }}</span>
-            <a href="{% url 'doctor_dashboard' %}" class="text-sm text-blue-100 hover:text-white border border-blue-400 hover:border-white px-3 py-1.5 rounded-lg transition">Dashboard</a>
+            {% if user.role == 'DOCTOR' %}
+                <span class="text-sm text-blue-200 font-medium">Dr. {{ user.get_full_name|default:user.username }}</span>
+                <a href="{% url 'doctor_dashboard' %}" class="text-sm text-blue-100 hover:text-white border border-blue-400 hover:border-white px-3 py-1.5 rounded-lg transition">Dashboard</a>
+            {% else %}
+                <span class="text-sm text-blue-200 font-medium">{{ user.get_full_name|default:user.username }}</span>
+                <a href="{% url 'receptionist_dashboard' %}" class="text-sm text-blue-100 hover:text-white border border-blue-400 hover:border-white px-3 py-1.5 rounded-lg transition">Dashboard</a>
+            {% endif %}
             <a href="{% url 'logout' %}" class="text-sm font-medium bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition">Sign Out</a>
         </div>
     </nav>

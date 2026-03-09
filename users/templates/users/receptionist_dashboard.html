@@ -31,10 +31,14 @@
                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded transition">
                     update Appointments
                 </a>
-                 <a href="{% url 'reschedule_log_all' %}"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded transition ml-2">
-                                    View All Reschedule Logs
-                 </a>
+                <a href="{% url 'schedule-exception-create' %}"
+                   class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-4 py-2 rounded transition ml-2">
+                    Add Schedule Exception
+                </a>
+                <a href="{% url 'reschedule_log_all' %}"
+                   class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded transition ml-2">
+                    View All Reschedule Logs
+                </a>
             </div>
         </div>
 
