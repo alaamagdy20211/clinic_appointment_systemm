@@ -211,3 +211,5 @@ migrations/
 00*_*.py
 
 .vscode/
+ 
+ notes.txt

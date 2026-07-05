@@ -31,8 +31,17 @@ DEBUG = True
 
 import os
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+# ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 # Application definition
+
+import os
+
+allowed = os.getenv("ALLOWED_HOSTS", "*")
+
+if allowed == "*":
+    ALLOWED_HOSTS = ["*"]
+else:
+    ALLOWED_HOSTS = [h.strip() for h in allowed.split(",")]
 
 INSTALLED_APPS = [
     'django.contrib.admin',

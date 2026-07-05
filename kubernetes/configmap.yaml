@@ -7,5 +7,4 @@ data:
   DB_USER: postgres
   DB_HOST: db-service
   DB_PORT: "5432"
-  # DB_PASSWORD: "password123"
-  ALLOWED_HOSTS: "192.168.49.2,localhost,web-service"
+  ALLOWED_HOSTS: "*"

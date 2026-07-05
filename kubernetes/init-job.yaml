@@ -3,12 +3,46 @@ kind: Job
 metadata:
   name: django-migrations
 spec:
+  backoffLimit: 3
   template:
     spec:
       restartPolicy: Never
+      initContainers:
+        - name: wait-for-db
+          image: postgres:17
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USER); do
+                echo "waiting for postgres..."
+                sleep 2
+              done
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DB_PORT
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: DB_PASSWORD
       containers:
         - name: migrate
-          image:  django-image:alaa3008 
+          image: django-image:alaa3008
+          imagePullPolicy: Never
           command: ["sh", "-c"]
           args:
             - python manage.py migrate
@@ -18,27 +52,23 @@ spec:
                 configMapKeyRef:
                   name: my-config
                   key: DB_HOST
-
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DB_PORT
             - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
                   name: my-config
                   key: DB_NAME
-
             - name: DB_USER
               valueFrom:
                 configMapKeyRef:
                   name: my-config
                   key: DB_USER
-            # - name: DB_PASSWORD
-            #   valueFrom:
-            #     configMapKeyRef:
-            #       name: my-config
-            #       key: DB_PASSWORD
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: my-secret
-                  key: db_password
-        
- 
+                  key: DB_PASSWORD

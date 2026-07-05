@@ -28,30 +28,16 @@ spec:
                 configMapKeyRef:
                   name: my-config
                   key: DB_NAME
-
             - name: POSTGRES_USER
               valueFrom:
                 configMapKeyRef:
                   name: my-config
                   key: DB_USER
-
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: my-secret
-                  key: db_password
-            # - name: POSTGRES_PASSWORD
-            #   valueFrom:
-            #     configMapKeyRef:
-            #       name: my-config
-            #       key: DB_PASSWORD
-
-            - name: POSTGRES_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: my-config
-                  key: DB_HOST
-
+                  key: DB_PASSWORD
   volumeClaimTemplates:
     - metadata:
         name: db-data
@@ -59,6 +45,5 @@ spec:
         accessModes: ["ReadWriteOnce"]
         storageClassName: mydb-storage-class
         resources:
-
           requests:
             storage: 1Gi
