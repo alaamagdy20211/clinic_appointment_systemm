@@ -1,8 +1,5 @@
 from django import forms
-from .models import Appointment
 from users.models import User
-from scheduling.models import AppointmentSlot
-from datetime import timedelta 
 from .models import Appointment, AppointmentSlot , AppointmentRescheduleLog
 
 class UpdateStatusForm(forms.Form):

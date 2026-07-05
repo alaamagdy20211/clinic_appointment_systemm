@@ -1,12 +1,14 @@
-from django.db import models, transaction
+from django.db import (
+    models,
+    transaction,
+    IntegrityError,
+)
 from django.conf import settings
 from scheduling.models import AppointmentSlot
 from datetime import timedelta, datetime
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db.models import Q
-from django.db import models, transaction
-from scheduling.models import AppointmentSlot
 
 BUFFER_MINUTES = 5  
 
