@@ -212,4 +212,3 @@ migrations/
 
 .vscode/
 kubernetes/
-docker-compose.yml
