@@ -76,6 +76,7 @@ spec:
                 configMapKeyRef:
                   name: my-config
                   key: ALLOWED_HOSTS
+                  
           readinessProbe:
             httpGet:
               path: /
