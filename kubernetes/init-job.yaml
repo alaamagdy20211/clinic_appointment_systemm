@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-migrations
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image:  django-image:alaa3008 
+          command: ["sh", "-c"]
+          args:
+            - python manage.py migrate
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DB_HOST
+
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DB_NAME
+
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DB_USER
+            # - name: DB_PASSWORD
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: my-config
+            #       key: DB_PASSWORD
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: db_password
+        
+ 

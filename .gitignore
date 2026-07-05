@@ -211,4 +211,3 @@ migrations/
 00*_*.py
 
 .vscode/
-kubernetes/
