@@ -1,8 +1,5 @@
 from datetime import datetime, timedelta, date
 from .models import AppointmentSlot, ScheduleException, DoctorSchedule
-
-from datetime import datetime, timedelta, date
-from .models import AppointmentSlot, ScheduleException, DoctorSchedule
 from django.core.exceptions import ValidationError
 
 def generate_slots_for_day(schedule_instance, target_date=None):

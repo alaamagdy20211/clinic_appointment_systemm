@@ -1,7 +1,7 @@
-from django.db import models, transaction, IntegrityError
+from django.db import models, transaction
 from django.conf import settings
-from scheduling.models import AppointmentSlot,DoctorSchedule
-from datetime import timedelta, datetime, time
+from scheduling.models import AppointmentSlot
+from datetime import timedelta, datetime
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db.models import Q

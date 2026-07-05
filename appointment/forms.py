@@ -2,10 +2,8 @@ from django import forms
 from .models import Appointment
 from users.models import User
 from scheduling.models import AppointmentSlot
-from datetime import timedelta, datetime , timezone
-from django import forms
-from .models import Appointment, AppointmentSlot
-from .models import AppointmentRescheduleLog
+from datetime import timedelta 
+from .models import Appointment, AppointmentSlot , AppointmentRescheduleLog
 
 class UpdateStatusForm(forms.Form):
     status = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
@@ -43,10 +41,10 @@ class UpdateStatusForm(forms.Form):
             ]
 
 
-    def clean(self):
-        cleaned_data=super().clean()
-        status=cleaned_data.get("status")
-        return cleaned_data
+    # def clean(self):
+    #     cleaned_data=super().clean()
+    #     status=cleaned_data.get("status")
+    #     return cleaned_data
 
 
 class DoctorSelectionForm(forms.ModelForm):

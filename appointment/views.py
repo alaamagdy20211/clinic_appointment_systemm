@@ -1,5 +1,5 @@
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.db import transaction, IntegrityError
 from django.utils.timezone import now
@@ -8,10 +8,8 @@ from users.permissions import PatientRequiredMixin
 from .forms import DoctorSelectionForm
 from .models import Appointment, ConsultationRecord
 from scheduling.models import AppointmentSlot
-from django.views.generic import ListView,View
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render,get_object_or_404,redirect
 from django.core.exceptions import ValidationError
 from .forms import UpdateStatusForm
 from .forms import RescheduleAppointmentForm

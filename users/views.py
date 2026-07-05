@@ -1,23 +1,22 @@
 # this is the users/views.py file
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import  logout
 
 
 from users.permissions import AdminRequiredMixin, PatientRequiredMixin, DoctorRequiredMixin, ReceptionistRequiredMixin
-from .models import User, DoctorProfile, PatientProfile, ReceptionistProfile
+from .models import User, PatientProfile
 from .forms import PatientRegistrationForm, UserUpdateForm, PatientProfileUpdateForm, DoctorRegistrationForm, ReceptionistRegistrationForm
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, TemplateView, View
 from django.contrib.auth.views import LoginView
-from .models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from appointment.models import Appointment
 from scheduling.models import ScheduleException, DoctorSchedule
 from django.utils import timezone
 import csv
 from django.http import HttpResponse
-from datetime import datetime, timedelta, date
+from datetime import   date
 class UserRegisterView(CreateView):
     model = User
     form_class = PatientRegistrationForm

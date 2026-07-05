@@ -2,6 +2,8 @@ from django import forms
 from django.db import transaction
 from .models import User, PatientProfile
 import re
+from .models import DoctorProfile, ReceptionistProfile
+
 
 class PatientRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -12,15 +14,15 @@ class PatientRegistrationForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email', 'password']
 
-        def clean_phone_number(self):
-            phone_number = self.cleaned_data.get('phone_number')
-            if not phone_number:
-                raise forms.ValidationError("Phone number is required for patients.")
-            if len(phone_number) != 11 or not phone_number.isdigit():
-                raise forms.ValidationError("Phone number must be 11 digits.")
-            if not phone_number.startswith('01'):
-                raise forms.ValidationError("Phone number must start with '01'.")
-            return phone_number
+        # def clean_phone_number(self):
+        #     phone_number = self.cleaned_data.get('phone_number')
+        #     if not phone_number:
+        #         raise forms.ValidationError("Phone number is required for patients.")
+        #     if len(phone_number) != 11 or not phone_number.isdigit():
+        #         raise forms.ValidationError("Phone number must be 11 digits.")
+        #     if not phone_number.startswith('01'):
+        #         raise forms.ValidationError("Phone number must start with '01'.")
+        #     return phone_number
         
         def clean_password(self):
             password = self.cleaned_data.get('password')
@@ -95,8 +97,6 @@ class PatientProfileUpdateForm(forms.ModelForm):
     
     
 
-
-from .models import DoctorProfile, ReceptionistProfile
 
 class DoctorRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
