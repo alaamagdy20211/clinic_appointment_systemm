@@ -207,7 +207,6 @@ marimo/_lsp/
 __marimo__/
 
 
-00*_*.py
 
 .vscode/
  
