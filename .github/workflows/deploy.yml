@@ -1,0 +1,57 @@
+name: Deploy
+
+on:
+
+  workflow_run:
+
+    workflows:
+      - Build Docker
+
+    types:
+      - completed
+
+jobs:
+
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-kubectl@v4
+
+      - name: Configure kubeconfig
+
+        run: |
+
+          mkdir -p ~/.kube
+
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+
+      - name: Update image
+
+        run: |
+
+          kubectl set image deployment/web-deployment \
+          django=${{secrets.DOCKER_USERNAME}}/clinic:${{ github.sha }}
+
+      - name: Run Migration Job
+
+        run: |
+
+          kubectl delete job django-migrations --ignore-not-found=true
+
+          kubectl apply -f k8s/migration-job.yaml
+
+          kubectl wait \
+            --for=condition=complete \
+            job/django-migrations \
+            --timeout=180s
+
+      - name: Wait Deployment
+
+        run: |
+
+          kubectl rollout status deployment/web-deployment
