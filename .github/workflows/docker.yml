@@ -6,6 +6,8 @@ on:
 
     branches:
       - main
+env:
+   IMAGE_NAME: clinic_appointment_system
 
 jobs:
 
@@ -28,5 +30,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/clinic:latest
-            ${{ secrets.DOCKER_USERNAME }}/clinic:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/${{env.IMAGE_NAME}}:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{env.IMAGE_NAME}}:${{ github.sha }}
