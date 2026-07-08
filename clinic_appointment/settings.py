@@ -48,9 +48,11 @@ INSTALLED_APPS = [
     'scheduling.apps.SchedulingConfig',
     'django_apscheduler',
  'appointment.apps.AppointmentConfig' ,
+ "django_prometheus"
 ]
 
 MIDDLEWARE = [
+     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = 'clinic_appointment.urls'

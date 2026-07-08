@@ -75,7 +75,6 @@ class Appointment(models.Model):
 
         if self.slot.is_booked:
             raise IntegrityError("This slot is already booked.")
-        
 
 
     class Status(models.TextChoices):

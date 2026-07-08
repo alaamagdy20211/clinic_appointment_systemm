@@ -28,25 +28,43 @@ class SelectDoctorView(PatientRequiredMixin, View):
         return render(request, self.template_name, {"form": form})
 
     def post(self, request):
-        form = DoctorSelectionForm(request.POST)
-
-        if form.is_valid():
-            appointment = form.save(commit=False)
-            appointment.patient = request.user
-
-            try:
-                with transaction.atomic():
-                    appointment.clean()
-                    appointment.save()
-                    appointment.slot.is_booked = True
-                    appointment.slot.save()
-            except IntegrityError as e:
-                form.add_error(None, str(e))
-            else:
-                return redirect("appointment_success")
-
-        return render(request, self.template_name, {"form": form})
-
+       form = DoctorSelectionForm(request.POST)
+   
+       if form.is_valid():
+           appointment = form.save(commit=False)
+           appointment.patient = request.user
+   
+           specialty = appointment.doctor.doctor_profile.specialization
+           status = appointment.status
+   
+           try:
+               with appointment_creation_duration_seconds.time(), transaction.atomic():
+                   appointment.clean()
+                   appointment.save()
+   
+                   appointment.slot.is_booked = True
+                   appointment.slot.save()
+   
+                   transaction.on_commit(
+                       lambda: appointments_status_changes_total.labels(
+                           specialty=specialty,
+                           status=status,
+                       ).inc()
+                   )
+   
+                   transaction.on_commit(
+                       lambda: appointments_created_total.labels(
+                           specialty=specialty,
+                       ).inc()
+                   )
+   
+           except IntegrityError as e:
+               form.add_error(None, str(e))
+           else:
+               return redirect("appointment_success")
+   
+       return render(request, self.template_name, {"form": form})
+   
 
 
 class LoadSlotsView(LoginRequiredMixin, View):
@@ -148,11 +166,18 @@ class  UpdateAppointmentStatusView(View):
         if form.is_valid():
             new_status = form.cleaned_data['status']
             try:
-
+               
                with transaction.atomic():
 
                 if new_status == 'CONFIRMED':
                     appointment.confirm(request.user)
+                    specialty = appointment.doctor.doctor_profile.specialization
+                    transaction.on_commit(
+                        lambda: appointments_status_changes_total.labels(
+                            specialty=specialty,
+                            status="CONFIRMED"
+                        ).inc()
+                    )
                 elif new_status == 'CANCELLED':
                     appointment.cancel(request.user)
                 elif new_status == 'CHECKED_IN':
