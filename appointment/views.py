@@ -17,6 +17,11 @@ from django.http import HttpResponseForbidden
 from .models import AppointmentRescheduleLog
 from django.views.generic import ListView, View, TemplateView
 from django.db.models import Q
+from clinic_appointment.metrics import (
+    appointment_creation_duration_seconds,
+    appointments_created_total,
+    appointments_status_changes_total,
+)
 
 
 
