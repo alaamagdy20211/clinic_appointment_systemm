@@ -1,0 +1,23 @@
+# granfana.ini ---> this is the configurations for setting up the grafana 
+
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: grafana-config
+  namespace: monitoring
+
+data:
+  grafana.ini: |
+    [server]
+    http_port = 3000
+
+    [paths]
+    data = /var/lib/grafana
+
+    [log]
+    mode = console
+    level = info
+
+    [auth.anonymous]
+    enabled = false
